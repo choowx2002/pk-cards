@@ -10,7 +10,7 @@ import {
 } from "lucide-vue-next";
 import replaceKeywords from "/src/helpers/keyMap.js";
 import Notify from "/src/components/Notify.vue";
-
+const base = import.meta.env.BASE_URL; 
 const route = useRoute();
 const router = useRouter();
 const notifyRef = ref(null);
@@ -21,7 +21,7 @@ const nextCardRef = ref(null);
 
 const fetchCardData = async (id) => {
     try {
-        const response = await fetch("/assets/data/cards-cn.json");
+        const response = await fetch(base + "/assets/data/cards-cn.json");
         const data = await response.json();
         if (!id) {
             const randomIndex = Math.floor(Math.random() * data.length);
@@ -140,7 +140,7 @@ const backListPage = () => {
                     >
                         <h2 class="text-4xl font-bold">{{ card?.name }}</h2>
                         <img
-                            :src="`/assets/images/${card?.type?.toLowerCase()}.svg`"
+                            :src="`${base}/assets/images/${card?.type?.toLowerCase()}.svg`"
                             :alt="card?.type"
                             width="32"
                         />
@@ -164,7 +164,7 @@ const backListPage = () => {
                                 }"
                             >
                                 <img
-                                    :src="`/assets/images/${rune.toUpperCase()}.webp`"
+                                    :src="`${base}/assets/images/${rune.toUpperCase()}.webp`"
                                     width="32"
                                     :alt="rune"
                                     class="white-image"
@@ -180,7 +180,7 @@ const backListPage = () => {
                                 {{ $t("ENERGY") }}
                             </legend>
                             <img
-                                :src="`/assets/images/energy-${card.cost.energy}.svg`"
+                                :src="`${base}/assets/images/energy-${card.cost.energy}.svg`"
                                 width="36"
                                 class="m-1 rounded-4xl drop-shadow-lg"
                                 alt=""
@@ -226,7 +226,7 @@ const backListPage = () => {
                                     card.might
                                 }}</span>
                                 <img
-                                    src="/assets/images/might.svg"
+                                    :src="`${base}/assets/images/might.svg`"
                                     width="28"
                                     class="rounded-4xl drop-shadow-lg"
                                     alt=""

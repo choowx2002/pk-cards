@@ -8,7 +8,7 @@ import {
     KeywordList,
     KeywordColors,
 } from "/src/constant.js";
-
+const base = import.meta.env.BASE_URL; 
 const router = useRouter();
 const route = useRoute();
 const showMore = ref(false);
@@ -24,7 +24,7 @@ const cards = ref([]);
 
 onMounted(async () => {
     try {
-        const response = await fetch("/assets/data/cards-cn.json");
+        const response = await fetch(base + "/assets/data/cards-cn.json");
         const data = await response.json();
         // cards.value = data.slice(0, 10);
         cards.value = data;
@@ -289,7 +289,7 @@ const resetFilters = () => {
                             "
                         >
                             <img
-                                :src="`/assets/images/${rune.toUpperCase()}.webp`"
+                                :src="`${base}/assets/images/${rune.toUpperCase()}.webp`"
                                 :alt="rune"
                                 :title="$t(rune.toUpperCase())"
                                 class="transition-transform p-0.5 ease-out hover:scale-110"
@@ -322,7 +322,7 @@ const resetFilters = () => {
                             "
                         >
                             <img
-                                :src="`/assets/images/${type}.svg`"
+                                :src="`${base}/assets/images/${type}.svg`"
                                 :alt="type"
                                 :title="$t(type.toUpperCase())"
                                 class="transition-transform p-1.5 ease-out hover:scale-110"
