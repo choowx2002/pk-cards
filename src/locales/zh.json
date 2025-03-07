@@ -50,5 +50,14 @@
 
     "SEARCH": "搜索",
     "CARD NAME": "卡牌名称",
-    "ID": "编号"
+    "ID": "编号",
+    "RESET": "重置",
+    "MORE": "更多",
+
+    "FURY": "狂怒",
+    "MENTAL": "精神",
+    "CHAOTIC": "混沌",
+    "PHYSICAL": "物理",
+    "CALM": "冷静",
+    "ORDER": "秩序"
 }

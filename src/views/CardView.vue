@@ -2,7 +2,12 @@
 import { computed, watch, ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { runeColorsCss } from "/src/constant.js";
-import { House } from "lucide-vue-next";
+import {
+    House,
+    SquareArrowRight,
+    SquareArrowLeft,
+    Scroll,
+} from "lucide-vue-next";
 import replaceKeywords from "/src/helpers/keyMap.js";
 import Notify from "/src/components/Notify.vue";
 
@@ -60,7 +65,10 @@ const handleKeyDown = (event) => {
 
 const goToPrevPage = () => {
     if (prevCardRef.value) {
-        router.push({ path: "/card", query: { cardId: encodeURIComponent(prevCardRef.value) } });
+        router.push({
+            path: "/card",
+            query: { cardId: encodeURIComponent(prevCardRef.value) },
+        });
         fetchCardData(decodeURIComponent(cardId.value));
     } else {
         notifyRef.value?.addNotification(`最后一张了`, "info");
@@ -69,7 +77,10 @@ const goToPrevPage = () => {
 
 const goToNextPage = () => {
     if (nextCardRef.value) {
-        router.push({ path: "/card", query: { cardId: encodeURIComponent(nextCardRef.value) } });
+        router.push({
+            path: "/card",
+            query: { cardId: encodeURIComponent(nextCardRef.value) },
+        });
         fetchCardData(decodeURIComponent(cardId.value));
     } else {
         notifyRef.value?.addNotification(`最后一张了`, "info");
@@ -77,11 +88,15 @@ const goToNextPage = () => {
 };
 
 watch(cardId, async (newId) => {
-  await fetchCardData(decodeURIComponent(newId));
+    await fetchCardData(decodeURIComponent(newId));
 });
 
 const backHomePage = () => {
     router.push("/");
+};
+
+const backListPage = () => {
+    router.push("/list");
 };
 </script>
 
@@ -204,7 +219,9 @@ const backHomePage = () => {
                             >
                                 {{ $t("MIGHT") }}
                             </legend>
-                            <div class="inline-flex items-center justify-center">
+                            <div
+                                class="inline-flex items-center justify-center"
+                            >
                                 <span class="font-extrabold text-3xl">{{
                                     card.might
                                 }}</span>
@@ -247,16 +264,26 @@ const backHomePage = () => {
         >
             <button
                 @click="goToPrevPage"
-                class="hover:pb-5 transition-transform"
+                class="hover:pb-5 transition-transform ease inline-flex gap-1"
             >
-                上一张
+                <SquareArrowLeft size="24" />
             </button>
+
             |
-            <button @click="goToNextPage" class="hover:pb-5">下一张</button>
+            <div @click="backListPage" class="hover:pb-5 transition-transform ease">
+                <Scroll size="24" />
+            </div>
             |
-            <div @click="backHomePage" class="hover:pb-5 transition-transform">
+            <div @click="backHomePage" class="hover:pb-5 transition-transform ease">
                 <House size="24" />
             </div>
+            |
+            <button
+                @click="goToNextPage"
+                class="hover:pb-5 transition-transform inline-flex gap-1 ease "
+            >
+                <SquareArrowRight size="24" />
+            </button>
         </div>
     </div>
 

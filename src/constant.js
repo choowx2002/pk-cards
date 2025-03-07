@@ -27,3 +27,33 @@ export const runeColorsCss = {
 };
 
 export const LanguageOptions = ["zh", "en"];
+
+export const KeywordList = [
+  "Accelerate",
+  "Assault",
+  "Ganking",
+  "Deathknell",
+  "Tank",
+  "Deflect",
+  "Shield",
+  "Legion",
+  "Hidden",
+  "Reaction",
+  "Focused",
+  "Epic"
+];
+
+export const KeywordColors = {
+  Accelerate: "#c10007",
+  Assault: "#c10007",
+  Ganking: "#c10007",
+  Deathknell: "#617cbe",
+  Tank: "#009689",
+  Deflect: "#009689",
+  Shield: "#009689",
+  Legion:"#8d7d33",
+  Hidden: "#7962a9",
+  Reaction:"#7962a9",
+  Focused: "#426db1",
+  Epic: "#8d7d33"
+};

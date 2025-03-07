@@ -1,15 +1,22 @@
 <script setup>
-import { ref } from 'vue';
-
-const message = ref('Welcome to My Vue 3 App!');
+import { ref } from "vue";
 </script>
-
 <template>
-  <div class="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-    <h1 class="text-4xl font-bold text-blue-600">{{ message }}</h1>
-    <p class="mt-4 text-lg text-gray-700">This is a simple home page.</p>
-    <router-link to="/list"><b>LIST</b></router-link>
-  </div>
+    <div
+        class="min-h-screen flex flex-col justify-center items-center bg-teal-50"
+    >
+        <h1
+            class="text-5xl font-extrabold animate-bounce  drop-shadow-lg"
+        >
+            哈基符！哈基符！哈基符！
+        </h1>
+        <router-link
+            to="/list"
+            class="mt-6 px-6 py-3 bg-teal-600 text-white font-bold text-lg rounded-lg shadow-md transition hover:bg-teal-700 hover:shadow-lg active:scale-95"
+        >
+            LIST
+        </router-link>
+    </div>
 </template>
 
 <style scoped>

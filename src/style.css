@@ -8,7 +8,7 @@
 }
 
 :root {
-    --background: var(--color-amber-50);
+    --background: var(bg-gray-100);
     --foreground: #171717;
 }
 
