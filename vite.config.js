@@ -11,4 +11,5 @@ export default defineConfig({
             "@": path.resolve(__dirname, "src"),
         },
     },
+    base: '/pk-cards/' // 这里应该是 '/pk-cards/' 而不是完整的 URL
 });
