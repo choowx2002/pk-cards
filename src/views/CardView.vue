@@ -21,7 +21,7 @@ const nextCardRef = ref(null);
 
 const fetchCardData = async (id) => {
     try {
-        const response = await fetch("/src/assets/data/cards-cn.json");
+        const response = await fetch("/assets/data/cards-cn.json");
         const data = await response.json();
         if (!id) {
             const randomIndex = Math.floor(Math.random() * data.length);
@@ -140,7 +140,7 @@ const backListPage = () => {
                     >
                         <h2 class="text-4xl font-bold">{{ card?.name }}</h2>
                         <img
-                            :src="`/src/assets/images/${card?.type?.toLowerCase()}.svg`"
+                            :src="`/assets/images/${card?.type?.toLowerCase()}.svg`"
                             :alt="card?.type"
                             width="32"
                         />
@@ -164,7 +164,7 @@ const backListPage = () => {
                                 }"
                             >
                                 <img
-                                    :src="`/src/assets/images/${rune.toUpperCase()}.webp`"
+                                    :src="`/assets/images/${rune.toUpperCase()}.webp`"
                                     width="32"
                                     :alt="rune"
                                     class="white-image"
@@ -180,7 +180,7 @@ const backListPage = () => {
                                 {{ $t("ENERGY") }}
                             </legend>
                             <img
-                                :src="`/src/assets/images/energy-${card.cost.energy}.svg`"
+                                :src="`/assets/images/energy-${card.cost.energy}.svg`"
                                 width="36"
                                 class="m-1 rounded-4xl drop-shadow-lg"
                                 alt=""
@@ -226,7 +226,7 @@ const backListPage = () => {
                                     card.might
                                 }}</span>
                                 <img
-                                    src="/src/assets/images/might.svg"
+                                    src="/assets/images/might.svg"
                                     width="28"
                                     class="rounded-4xl drop-shadow-lg"
                                     alt=""

@@ -22,22 +22,22 @@ const keywordMap = {
     "Shield-2": "<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 2'>坚守 2</span>",
     "Shield-3": "<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 3'>坚守 3</span>",
 
-    "Exhaust me": "<img src='/src/assets/images/exhaust.svg' alt='exhaust' title='消耗' class='w-[18px] mr-0.5 inline-block' />",
-    "might": "<img src='/src/assets/images/might.svg' alt='might' title='威力' class='w-[18px] mr-0.5 inline-block' />",
+    "Exhaust me": "<img src='/assets/images/exhaust.svg' alt='exhaust' title='消耗' class='w-[18px] mr-0.5 inline-block' />",
+    "might": "<img src='/assets/images/might.svg' alt='might' title='威力' class='w-[18px] mr-0.5 inline-block' />",
 
-    "energy-0": "<img src='/src/assets/images/energy-0.svg' alt='energy-0' title='法力 0' class='w-[18px] mx-0.5 inline-block' />",
-    "energy-1": "<img src='/src/assets/images/energy-1.svg' alt='energy-1' title='法力 1' class='w-[18px] mx-0.5 inline-block' />",
-    "energy-2": "<img src='/src/assets/images/energy-2.svg' alt='energy-2' title='法力 2' class='w-[18px] mx-0.5 inline-block' />",
-    "energy-3": "<img src='/src/assets/images/energy-3.svg' alt='energy-3' title='法力 3' class='w-[18px] mx-0.5 inline-block' />",
-    "energy-4": "<img src='/src/assets/images/energy-4.svg' alt='energy-4' title='法力 4' class='w-[18px] mx-0.5 inline-block' />",
-    "energy-5": "<img src='/src/assets/images/energy-5.svg' alt='energy-5' title='法力 5' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-0": "<img src='/assets/images/energy-0.svg' alt='energy-0' title='法力 0' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-1": "<img src='/assets/images/energy-1.svg' alt='energy-1' title='法力 1' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-2": "<img src='/assets/images/energy-2.svg' alt='energy-2' title='法力 2' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-3": "<img src='/assets/images/energy-3.svg' alt='energy-3' title='法力 3' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-4": "<img src='/assets/images/energy-4.svg' alt='energy-4' title='法力 4' class='w-[18px] mx-0.5 inline-block' />",
+    "energy-5": "<img src='/assets/images/energy-5.svg' alt='energy-5' title='法力 5' class='w-[18px] mx-0.5 inline-block' />",
 
-    "Calm": "<img src='/src/assets/images/CALM.webp' alt='CALM' title='冷静' class='w-[18px] inline-block' />",
-    "Chaotic": "<img src='/src/assets/images/CHAOTIC.webp' alt='CHAOTIC' title='混沌' class='w-[18px] inline-block' />",
-    "Fury": "<img src='/src/assets/images/FURY.webp' alt='FURY' title='狂怒' class='w-[18px] inline-block' />",
-    "Mental": "<img src='/src/assets/images/MENTAL.webp' alt='MENTAL' title='心智' class='w-[18px] inline-block' />",
-    "Order": "<img src='/src/assets/images/ORDER.webp' alt='ORDER' title='秩序' class='w-[18px] inline-block' />",
-    "Pyhsical": "<img src='/src/assets/images/PHYSICAL.webp' alt='PHYSICAL' title='物理' class='w-[18px] inline-block' />",
+    "Calm": "<img src='/assets/images/CALM.webp' alt='CALM' title='冷静' class='w-[18px] inline-block' />",
+    "Chaotic": "<img src='/assets/images/CHAOTIC.webp' alt='CHAOTIC' title='混沌' class='w-[18px] inline-block' />",
+    "Fury": "<img src='/assets/images/FURY.webp' alt='FURY' title='狂怒' class='w-[18px] inline-block' />",
+    "Mental": "<img src='/assets/images/MENTAL.webp' alt='MENTAL' title='心智' class='w-[18px] inline-block' />",
+    "Order": "<img src='/assets/images/ORDER.webp' alt='ORDER' title='秩序' class='w-[18px] inline-block' />",
+    "Pyhsical": "<img src='/assets/images/PHYSICAL.webp' alt='PHYSICAL' title='物理' class='w-[18px] inline-block' />",
 
     "new line": "<br>"
 }
