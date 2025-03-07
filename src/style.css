@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "BeaufortforLOLJa";
+    src: url("/fonts/BeaufortforLOLJa-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+:root {
+    --background: var(--color-amber-50);
+    --foreground: #171717;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    overflow-x: hidden;
+}
+
+.white-image {
+    filter: brightness(0) invert(1);
+}
