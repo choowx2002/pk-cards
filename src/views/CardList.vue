@@ -322,7 +322,7 @@ const resetFilters = () => {
                             "
                         >
                             <img
-                                :src="`${base}/assets/images/${type}.svg`"
+                                :src="`${base}/assets/images/${type.toLowerCase()}.svg`"
                                 :alt="type"
                                 :title="$t(type.toUpperCase())"
                                 class="transition-transform p-1.5 ease-out hover:scale-110"
