@@ -1,49 +1,110 @@
 <script setup>
 import { computed, watch, ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { runeColorsCss } from "/src/constant.js";
+import { runeColorsCss } from "@/constant.js";
 import {
     House,
     SquareArrowRight,
     SquareArrowLeft,
     Scroll,
 } from "lucide-vue-next";
-import replaceKeywords from "/src/helpers/keyMap.js";
-import Notify from "/src/components/Notify.vue";
-const base = import.meta.env.BASE_URL; 
+import replaceKeywords from "@/helpers/keyMap.js";
+import Notify from "@/components/Notify.vue";
+import { supabase } from "@/supabase";
+
+const base = import.meta.env.BASE_URL;
 const route = useRoute();
 const router = useRouter();
+
 const notifyRef = ref(null);
-const cardId = computed(() => route.query.cardId || null);
+const cardId = computed(() => decodeURIComponent(route.query.cardId || ""));
 const card = ref(null);
 const prevCardRef = ref(null);
 const nextCardRef = ref(null);
 
-const fetchCardData = async (id) => {
+async function getCardDetails(cardID) {
     try {
-        const response = await fetch(base + "/assets/data/cards-cn.json");
-        const data = await response.json();
-        if (!id) {
-            const randomIndex = Math.floor(Math.random() * data.length);
-            card.value = data[randomIndex];
-        } else {
-            const index = data.findIndex((c) => c.cardId === id);
-            if (index !== -1) {
-                card.value = data[index];
-                console.log(card.value);
-                prevCardRef.value = data[index - 1]?.cardId || null;
-                nextCardRef.value = data[index + 1]?.cardId || null;
-            } else {
-                throw new Error("Card not found");
-            }
-        }
-    } catch (error) {
-        console.error("Failed to load card data:", error);
-    }
-};
+        let { data, error } = await supabase
+            .from("cards")
+            .select(
+                `
+            *,
+            types ( name ),
+            series ( name, total ),
+            cards_runes ( runeid, runes ( name ) ),
+            cards_factions ( factionid, factions ( name ) ),
+            cards_keywords ( keywordid, level, keywords ( name ) ) 
+        `
+            )
+            .eq("cardid", cardID)
+            .single();
 
+        if (error) throw error;
+
+        return {
+            cardId: data.cardid,
+            imgSrc: data.imgsrc,
+            name: data.name,
+            type: data.types?.name || "Unknown",
+            title: data.title,
+            champion: data.champion,
+            energy: data.energy,
+            power: data.power,
+            might: data.might,
+            description: data.description || "",
+            faction: data.cards_factions?.map((f) => f.factions?.name) || [],
+            runeColor: data.cards_runes?.map((r) => r.runes?.name) || [],
+            keywords: data.cards_keywords?.map((k) => k.keywords?.name) || [],
+        };
+    } catch (error) {
+        console.error("Error fetching card details:", error);
+        return null;
+    }
+}
+
+// **获取上一张和下一张卡片**
+async function getPrevNextCardId(cardID) {
+    try {
+        let { data, error } = await supabase
+            .from("cards")
+            .select("cardid") // 只查询 cardid，提高查询效率
+            .order("cardid", { ascending: true }); // 按 cardid 递增排序
+
+        if (error) throw error;
+
+        const index = data.findIndex((card) => card.cardid === cardID);
+        if (index === -1) throw new Error("Card not found");
+
+        return {
+            prevCardId: index > 0 ? data[index - 1].cardid : null,
+            nextCardId: index < data.length - 1 ? data[index + 1].cardid : null,
+        };
+    } catch (error) {
+        console.error("Error fetching prev/next card:", error);
+        return { prevCardId: null, nextCardId: null };
+    }
+}
+
+// **更新卡片数据**
+async function updateCardData(newId) {
+    if (!newId) return;
+
+    const [cardData, prevNextData] = await Promise.all([
+        getCardDetails(newId),
+        getPrevNextCardId(newId),
+    ]);
+
+    card.value = cardData;
+    prevCardRef.value = prevNextData.prevCardId;
+    nextCardRef.value = prevNextData.nextCardId;
+}
+
+// **监听 `cardId` 变化**
+watch(cardId, (newId) => updateCardData(newId));
+
+// **页面加载时获取数据**
 onMounted(() => {
-    fetchCardData(decodeURIComponent(cardId.value));
+    updateCardData(cardId.value);
     window.addEventListener("keydown", handleKeyDown);
 });
 
@@ -51,27 +112,15 @@ onUnmounted(() => {
     window.removeEventListener("keydown", handleKeyDown);
 });
 
-const checkRuneColor = (rune) => {
-    return runeColorsCss[rune] || "black";
-};
-
-const handleKeyDown = (event) => {
-    if (event.key === "ArrowLeft") {
-        goToPrevPage();
-    } else if (event.key === "ArrowRight") {
-        goToNextPage();
-    }
-};
-
+// **翻页方法**
 const goToPrevPage = () => {
     if (prevCardRef.value) {
         router.push({
             path: "/card",
             query: { cardId: encodeURIComponent(prevCardRef.value) },
         });
-        fetchCardData(decodeURIComponent(cardId.value));
     } else {
-        notifyRef.value?.addNotification(`最后一张了`, "info");
+        notifyRef.value?.addNotification(`已经是第一张了`, "info");
     }
 };
 
@@ -81,15 +130,16 @@ const goToNextPage = () => {
             path: "/card",
             query: { cardId: encodeURIComponent(nextCardRef.value) },
         });
-        fetchCardData(decodeURIComponent(cardId.value));
     } else {
-        notifyRef.value?.addNotification(`最后一张了`, "info");
+        notifyRef.value?.addNotification(`已经是最后一张了`, "info");
     }
 };
 
-watch(cardId, async (newId) => {
-    await fetchCardData(decodeURIComponent(newId));
-});
+// **键盘快捷翻页**
+const handleKeyDown = (event) => {
+    if (event.key === "ArrowLeft") goToPrevPage();
+    else if (event.key === "ArrowRight") goToNextPage();
+};
 
 const backHomePage = () => {
     router.push("/");
@@ -98,6 +148,19 @@ const backHomePage = () => {
 const backListPage = () => {
     router.push("/list");
 };
+
+const checkRuneColor = (rune) => {
+    if (rune.length === 1) {
+        return runeColorsCss[rune[0]] || "bg-gray-400";
+    }
+    if (rune.length === 2) {
+        const color1 = runeColorsCss[rune[0]] || "rgba(100,100,100,1)";
+        const color2 = runeColorsCss[rune[1]] || "rgba(150,150,150,1)";
+        return `linear-gradient(120deg, ${color1} 0%, ${color2} 100%)`;
+    }
+    return "black";
+};
+
 </script>
 
 <template>
@@ -173,14 +236,14 @@ const backListPage = () => {
                         </fieldset>
 
                         <fieldset
-                            v-if="card?.cost?.energy !== undefined"
+                            v-if="card?.energy"
                             class="rounded-lg border-2 px-4 py-1 flex gap-2"
                         >
                             <legend class="font-bold">
                                 {{ $t("ENERGY") }}
                             </legend>
                             <img
-                                :src="`${base}/assets/images/energy-${card.cost.energy}.svg`"
+                                :src="`${base}/assets/images/energy-${card.energy}.svg`"
                                 width="36"
                                 class="m-1 rounded-4xl drop-shadow-lg"
                                 alt=""
@@ -188,7 +251,7 @@ const backListPage = () => {
                         </fieldset>
 
                         <fieldset
-                            v-if="card?.cost?.power?.count"
+                            v-if="card?.power"
                             class="rounded-lg border-2 px-4 py-1 flex gap-2"
                         >
                             <legend class="font-bold">
@@ -197,18 +260,16 @@ const backListPage = () => {
                             <div
                                 class="shadow-lg rounded-4xl border-2 w-9 h-9 flex border-black justify-center items-center bg-black text-white font-extrabold m-1 text-2xl"
                                 :style="{
-                                    background: checkRuneColor(
-                                        card.cost.power.rune
-                                    ),
+                                    background: checkRuneColor(card.runeColor),
                                     fontFamily: 'BeaufortforLOLJa, sans-serif',
                                 }"
                             >
-                                {{ card.cost.power.count }}
+                                {{ card.power }}
                             </div>
                         </fieldset>
 
                         <fieldset
-                            v-if="card?.might !== undefined"
+                            v-if="card.might"
                             class="rounded-lg border-2 px-4 py-1 flex gap-2 items-center"
                         >
                             <legend
@@ -270,17 +331,23 @@ const backListPage = () => {
             </button>
 
             |
-            <div @click="backListPage" class="hover:pb-5 transition-transform ease">
+            <div
+                @click="backListPage"
+                class="hover:pb-5 transition-transform ease"
+            >
                 <Scroll size="24" />
             </div>
             |
-            <div @click="backHomePage" class="hover:pb-5 transition-transform ease">
+            <div
+                @click="backHomePage"
+                class="hover:pb-5 transition-transform ease"
+            >
                 <House size="24" />
             </div>
             |
             <button
                 @click="goToNextPage"
-                class="hover:pb-5 transition-transform inline-flex gap-1 ease "
+                class="hover:pb-5 transition-transform inline-flex gap-1 ease"
             >
                 <SquareArrowRight size="24" />
             </button>
