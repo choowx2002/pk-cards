@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import {
     Runes,
@@ -8,7 +8,8 @@ import {
     KeywordList,
     KeywordColors,
 } from "/src/constant.js";
-const base = import.meta.env.BASE_URL; 
+
+const base = import.meta.env.BASE_URL;
 const router = useRouter();
 const route = useRoute();
 const showMore = ref(false);
@@ -21,6 +22,10 @@ const might = ref({ min: "", max: "" });
 const energy = ref({ min: "", max: "" });
 const power = ref({ min: "", max: "" });
 const cards = ref([]);
+const currentPage = ref(1);
+const cardsPerPage = ref(20);
+const observer = ref(null);
+const bottomElement = ref(null);
 
 onMounted(async () => {
     try {
@@ -31,8 +36,15 @@ onMounted(async () => {
     } catch (error) {
         console.error("Failed to load card data:", error);
     }
-    
+
     loadFiltersFromQuery();
+    setupObserver();
+});
+
+onUnmounted(() => {
+    if (observer.value) {
+        observer.value.disconnect();
+    }
 });
 
 const loadFiltersFromQuery = () => {
@@ -42,9 +54,15 @@ const loadFiltersFromQuery = () => {
     withAnd.value = query.withAnd === "true";
     showMore.value = query.showMore === "true";
 
-    selectedRunes.value = query.selectedRunes ? query.selectedRunes.split(",") : [];
-    selectedTypes.value = query.selectedTypes ? query.selectedTypes.split(",") : [];
-    selectedKeys.value = query.selectedKeys ? query.selectedKeys.split(",") : [];
+    selectedRunes.value = query.selectedRunes
+        ? query.selectedRunes.split(",")
+        : [];
+    selectedTypes.value = query.selectedTypes
+        ? query.selectedTypes.split(",")
+        : [];
+    selectedKeys.value = query.selectedKeys
+        ? query.selectedKeys.split(",")
+        : [];
 
     might.value = {
         min: query.mightMin || "",
@@ -60,9 +78,35 @@ const loadFiltersFromQuery = () => {
     };
 };
 
+const setupObserver = () => {
+    observer.value = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && currentPage.value < totalPages.value) {
+            currentPage.value++;
+        }
+    });
+
+    if (bottomElement.value) {
+        observer.value.observe(bottomElement.value);
+    }
+};
+
 watch(
-    [searchKey, selectedRunes, selectedTypes, selectedKeys, withAnd, might, energy, power],
+    [
+        searchKey,
+        selectedRunes,
+        selectedTypes,
+        selectedKeys,
+        withAnd,
+        might,
+        energy,
+        power,
+    ],
     () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+        currentPage.value = 1;
         updateQueryParams();
     },
     { deep: true }
@@ -73,9 +117,15 @@ const updateQueryParams = () => {
         path: route.path,
         query: {
             searchKey: searchKey.value || undefined,
-            selectedRunes: selectedRunes.value.length ? selectedRunes.value.join(",") : undefined,
-            selectedTypes: selectedTypes.value.length ? selectedTypes.value.join(",") : undefined,
-            selectedKeys: selectedKeys.value.length ? selectedKeys.value.join(",") : undefined,
+            selectedRunes: selectedRunes.value.length
+                ? selectedRunes.value.join(",")
+                : undefined,
+            selectedTypes: selectedTypes.value.length
+                ? selectedTypes.value.join(",")
+                : undefined,
+            selectedKeys: selectedKeys.value.length
+                ? selectedKeys.value.join(",")
+                : undefined,
             withAnd: withAnd.value ? "true" : undefined,
             mightMin: might.value.min || undefined,
             mightMax: might.value.max || undefined,
@@ -83,13 +133,13 @@ const updateQueryParams = () => {
             energyMax: energy.value.max || undefined,
             powerMin: power.value.min || undefined,
             powerMax: power.value.max || undefined,
-            showMore: showMore.value ? "true" : undefined
+            showMore: showMore.value ? "true" : undefined,
         },
     });
 };
 
 const filteredCards = computed(() => {
-    return cards.value.filter((card) => {
+    const filtered = cards.value.filter((card) => {
         return (
             matchesSearch(card) &&
             matchesRunes(card) &&
@@ -100,6 +150,25 @@ const filteredCards = computed(() => {
             matchesPower(card)
         );
     });
+
+    const startIndex = 0;
+    const endIndex = currentPage.value * cardsPerPage.value;
+    return filtered.slice(startIndex, endIndex);
+});
+
+const totalPages = computed(() => {
+    const filtered = cards.value.filter((card) => {
+        return (
+            matchesSearch(card) &&
+            matchesRunes(card) &&
+            matchesTypes(card) &&
+            matchesKeys(card) &&
+            matchesMight(card) &&
+            matchesEnergy(card) &&
+            matchesPower(card)
+        );
+    });
+    return Math.ceil(filtered.length / cardsPerPage.value);
 });
 
 // Search filter
@@ -220,52 +289,49 @@ const resetFilters = () => {
     might.value = { min: "", max: "" };
     energy.value = { min: "", max: "" };
     power.value = { min: "", max: "" };
+    currentPage.value = 1;
 };
-
 </script>
 
 <template>
-    <div class="max-w-[1300px] mx-auto">
+    <div class="max-w-[1300px] mx-auto md:flex">
         <!-- 左侧筛选栏 -->
-        <aside class="w-full p-4 sticky top-1 z-50 bg-white shadow-md pt-3">
+        <aside class="md:w-2/5 p-4 bg-white shadow-md pt-3 sticky top-2 z-50 md:h-dvh">
             <!-- name and id -->
-            <div class="py-1 px-2">
-                <div class="w-full">
-                    <div class="flex justify-between items-center">
-                        <label class="text-lg font-semibold"
-                            >{{ $t("CARD NAME") }}/{{ $t("ID") }}:</label
-                        >
-                        <div
-                            class="flex align-baseline gap-2 text-sm font-bold"
-                        >
-                            <span>{{ $t("MORE") }}</span>
-                            <input
-                                type="checkbox"
-                                :checked="showMore"
-                                @click="toogleShowMore"
-                            />
-                        </div>
-                    </div>
-                    <input
-                        v-model="searchKey"
-                        placeholder="卡牌名字/编号"
-                        class="w-full px-2 py-1 border-b-2 focus:outline-0"
-                    />
-                </div>
+            <div class="w-full py-1 px-2">
+                <label class="text-lg font-semibold"
+                    >{{ $t("CARD NAME") }}/{{ $t("ID") }}:</label
+                >
+                <input
+                    v-model="searchKey"
+                    placeholder="卡牌名字/编号"
+                    class="w-full px-2 py-1 border-b-2 focus:outline-0"
+                />
             </div>
+
+            <!-- MORE -->
+            <div class="px-2 pt-1 flex gap-2 font-bold" >
+                <span>{{ $t("MORE") }}</span>
+                <input
+                    type="checkbox"
+                    :checked="showMore"
+                    @click="toogleShowMore"
+                />
+            </div>
+
             <div
-                class="w-full max-h-0 overflow-hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 justify-items-start gap-4 p-0"
-                :class="showMore ? 'max-h-[1000px] p-4 box-border' : ''"
+                class="w-full px-2 max-h-0 overflow-hidden justify-items-start grid gap-3 p-0 sm:grid-cols-2 md:grid-cols-1"
+                :class="showMore ? 'max-h-[1000px]' : ''"
                 style="transition: all 0.3s ease"
             >
                 <!-- runes -->
                 <div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between items-center">
                         <label class="text-lg font-semibold"
                             >{{ $t("RUNE") }}:</label
                         >
                         <div>
-                            <span>严格</span>
+                            <span class="font-semibold">约束</span>
                             <input
                                 type="checkbox"
                                 :checked="withAnd"
@@ -457,10 +523,10 @@ const resetFilters = () => {
                     </div>
                 </div>
 
-                <div class="w-full text-end mt-4 md:col-span-3">
+                <div class="w-full">
                     <button
                         @click="resetFilters"
-                        class="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 transition"
+                        class="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-red-400 hover:text-white transition h-fit"
                     >
                         {{ $t("RESET") }}
                     </button>
@@ -470,7 +536,7 @@ const resetFilters = () => {
 
         <!-- 右侧卡牌列表 -->
         <main
-            class="grid p-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 justify-items-center"
+            class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center md:w-2/3"
         >
             <div
                 v-for="card in filteredCards"
@@ -483,6 +549,12 @@ const resetFilters = () => {
                     :onclick="() => routeTo(card.cardId)"
                     class="object-cover"
                 />
+            </div>
+            <div
+                ref="bottomElement"
+                class="w-full h-10 col-span-full flex justify-center items-center"
+            >
+                <span v-if="currentPage === totalPages || filteredCards.length === 0">{{ $t("END") }}</span>
             </div>
         </main>
     </div>
