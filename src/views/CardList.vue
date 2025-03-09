@@ -536,7 +536,7 @@ const resetFilters = () => {
 
         <!-- 右侧卡牌列表 -->
         <main
-            class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center md:w-2/3"
+            class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 justify-items-center md:w-2/3"
         >
             <div
                 v-for="card in filteredCards"
