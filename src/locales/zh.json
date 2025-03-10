@@ -62,5 +62,12 @@
     "CHAOTIC": "混沌",
     "PHYSICAL": "物理",
     "CALM": "冷静",
-    "ORDER": "秩序"
+    "ORDER": "秩序",
+    "LIST": "列表",
+    "DECKBUILDER": "卡组构建",
+
+    "PICK A LEGEND": "选择您的传奇英雄",
+    "LEGEND_CHAMPION": "传奇英雄",
+    "PICK_UNITS": "选择您的单位",
+    "PICK_BF": "选择您的战场"
 }

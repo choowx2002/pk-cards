@@ -30,7 +30,6 @@ const fetchCardData = async (id) => {
             const index = data.findIndex((c) => c.cardId === id);
             if (index !== -1) {
                 card.value = data[index];
-                console.log(card.value);
                 prevCardRef.value = data[index - 1]?.cardId || null;
                 nextCardRef.value = data[index + 1]?.cardId || null;
             } else {

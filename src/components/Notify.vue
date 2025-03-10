@@ -31,7 +31,7 @@ defineExpose({ addNotification });
         'bg-green-500': notif.type === 'success',
         'bg-red-500': notif.type === 'error',
         'bg-yellow-500': notif.type === 'warning',
-        'bg-blue-300': notif.type === 'info',
+        'bg-teal-700': notif.type === 'info',
       }"
     >
       <span>{{ notif.message }}</span>

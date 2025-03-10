@@ -294,9 +294,11 @@ const resetFilters = () => {
 </script>
 
 <template>
-    <div class="max-w-[1300px] mx-auto md:flex">
+    <div class="max-w-[1300px] mx-auto md:flex bg-gray-100 mt-2">
         <!-- 左侧筛选栏 -->
-        <aside class="md:w-2/5 p-4 bg-white shadow-md pt-3 sticky top-2 z-50 md:h-dvh">
+        <aside
+            class="md:w-2/5 p-4 bg-white shadow-lg pt-3 md:h-fit"
+        >
             <!-- name and id -->
             <div class="w-full py-1 px-2">
                 <label class="text-lg font-semibold"
@@ -310,7 +312,7 @@ const resetFilters = () => {
             </div>
 
             <!-- MORE -->
-            <div class="px-2 pt-1 flex gap-2 font-bold" >
+            <div class="px-2 pt-1 flex gap-2 font-bold">
                 <span>{{ $t("MORE") }}</span>
                 <input
                     type="checkbox"
@@ -535,26 +537,34 @@ const resetFilters = () => {
         </aside>
 
         <!-- 右侧卡牌列表 -->
-        <main
-            class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 justify-items-center md:w-2/3"
-        >
+        <main class="justify-items-center md:w-2/3 overflow-y-scroll md:h-[calc(100vh-68px)] customScroll">
             <div
-                v-for="card in filteredCards"
-                :key="card.cardId"
-                class="bg-white shadow-md rounded-lg overflow-hidden max-w-[200px] h-fit"
+                class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
             >
-                <img
-                    :src="card.imgSrc"
-                    :alt="card.name"
-                    :onclick="() => routeTo(card.cardId)"
-                    class="object-cover"
-                />
+                <div
+                    v-for="card in filteredCards"
+                    :key="card.cardId"
+                    class="bg-white shadow-md rounded-lg overflow-hidden max-w-[200px] h-fit"
+                >
+                    <img
+                        :src="card.imgSrc"
+                        :alt="card.name"
+                        :onclick="() => routeTo(card.cardId)"
+                        class="object-cover"
+                    />
+                </div>
             </div>
+
             <div
                 ref="bottomElement"
                 class="w-full h-10 col-span-full flex justify-center items-center"
             >
-                <span v-if="currentPage === totalPages || filteredCards.length === 0">{{ $t("END") }}</span>
+                <span
+                    v-if="
+                        currentPage === totalPages || filteredCards.length === 0
+                    "
+                    >{{ $t("END") }}</span
+                >
             </div>
         </main>
     </div>

@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import CardView from "@/views/CardView.vue";
 import CardList from "@/views/CardList.vue";
+import DeckBuilder from "@/views/DeckBuilder.vue"
 
 const routes = [
     {
@@ -11,8 +12,13 @@ const routes = [
     },
     {
         path: "/list",
-        name: "CardList",
+        name: "cardList",
         component: CardList,
+    },
+    {
+        path: "/deckbuilder",
+        name: "deckBuilder",
+        component: DeckBuilder,
     },
     {
         path: "/card",

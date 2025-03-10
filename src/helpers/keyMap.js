@@ -1,28 +1,28 @@
 const base = import.meta.env.BASE_URL; 
 
 export const keywordMap = {
-  "Accelerate": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='急速'>急速</span>`,
-  "Ganking": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='游走'>游走</span>`,
+  "Accelerate": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='急速'>急速</span>`,
+  "Ganking": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='游走'>游走</span>`,
 
-  "Assault": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻'>强攻</span>`,
-  "Assault-2": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻 2'>强攻 2</span>`,
-  "Assault-3": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻 3'>强攻 3</span>`,
+  "Assault": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻'>强攻</span>`,
+  "Assault-2": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻 2'>强攻 2</span>`,
+  "Assault-3": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-red-700 w-fit' title='强攻 3'>强攻 3</span>`,
 
-  "Epic": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#8d7d33] w-fit' title='引导'>引导</span>`,
-  "Deathknell": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#617cbe] w-fit' title='绝念'>绝念</span>`,
-  "Tank": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='壁垒'>壁垒</span>`,
-  "Legion": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#8d7d33] w-fit' title='鼓舞'>鼓舞</span>`,
-  "Hidden": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#7962a9] w-fit' title='待命'>待命</span>`,
-  "Reaction": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#7962a9] w-fit' title='反应'>反应</span>`,
-  "Focused": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-[#426db1] w-fit' title='专注'>专注</span>`,
+  "Epic": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#8d7d33] w-fit' title='引导'>引导</span>`,
+  "Deathknell": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#617cbe] w-fit' title='绝念'>绝念</span>`,
+  "Tank": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='壁垒'>壁垒</span>`,
+  "Legion": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#8d7d33] w-fit' title='鼓舞'>鼓舞</span>`,
+  "Hidden": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#7962a9] w-fit' title='待命'>待命</span>`,
+  "Reaction": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#7962a9] w-fit' title='反应'>反应</span>`,
+  "Focused": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-[#426db1] w-fit' title='专注'>专注</span>`,
 
-  "Deflect": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾'>法盾</span>`,
-  "Deflect-2": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾 2'>法盾 2</span>`,
-  "Deflect-3": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾 3'>法盾 3</span>`,
+  "Deflect": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾'>法盾</span>`,
+  "Deflect-2": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾 2'>法盾 2</span>`,
+  "Deflect-3": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='法盾 3'>法盾 3</span>`,
 
-  "Shield": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守'>坚守</span>`,
-  "Shield-2": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 2'>坚守 2</span>`,
-  "Shield-3": `<span class='text-sm mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 3'>坚守 3</span>`,
+  "Shield": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守'>坚守</span>`,
+  "Shield-2": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 2'>坚守 2</span>`,
+  "Shield-3": `<span class='mr-2 px-2 py-0.5 rounded-lg text-white bg-teal-600 w-fit' title='坚守 3'>坚守 3</span>`,
 
   "Exhaust me": `<img src='${base}assets/images/exhaust.svg' alt='exhaust' title='消耗' class='w-[18px] mr-0.5 inline-block' />`,
   "might": `<img src='${base}assets/images/might.svg' alt='might' title='威力' class='w-[18px] mr-0.5 inline-block' />`,
