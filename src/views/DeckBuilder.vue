@@ -1,4 +1,5 @@
 <template>
+    <Notify ref="notifyRef" />
     <div
         class="flex flex-col h-[calc(100vh-68px)] mt-2"
         @mousemove="updateTooltipPosition"
@@ -10,8 +11,134 @@
                 class="w-1/2 md:w-3/5 bg-gray-100 overflow-hidden"
                 :class="[showCardList ? 'max-w-[5000px]' : 'max-w-fit']"
             >
-                <h2 class="text-lg font-semibold mb-2 flex items-center">
-                    <span>卡牌</span>
+                <h2 class=" mb-2 flex justify-between items-center w-full">
+                    <div
+                        class="flex gap-2 pl-4 items-center w-full"
+                        v-if="showCardList"
+                    >
+                        <!-- filter area -->
+                        <div class="flex gap-2 text-sm items-center flex-wrap w-full">
+                            <!-- seacrh -->
+                            <div class="border-2 py-0.5 px-2 rounded-lg">
+                                <label class="border-r-1 pr-1">{{
+                                    $t("SEARCH")
+                                }}</label>
+                                <input
+                                    type="text"
+                                    aria-colspan="4"
+                                    class="pl-1 focus:border-0 focus:outline-0"
+                                    v-model="filters.search"
+                                />
+                            </div>
+
+                            <!-- keyword -->
+                            <div>
+                                <label>{{ $t("KEYWORD") }}: </label>
+                                <select
+                                    class="focus:border-0 focus:outline-0"
+                                    v-model="filters.keyword"
+                                >
+                                    <option value="all">
+                                        {{ $t("ALL") }}
+                                    </option>
+                                    <option
+                                        :value="k"
+                                        :key="k"
+                                        v-for="k in KeywordList"
+                                    >
+                                        {{ $t(k.toUpperCase()) }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- card type -->
+                            <div>
+                                <label>{{ $t("TYPE") }}: </label>
+                                <select
+                                    class="focus:border-0 focus:outline-0"
+                                    v-model="filters.type"
+                                >
+                                    <option value="all">
+                                        {{ $t("ALL") }}
+                                    </option>
+                                    <option
+                                        :value="t"
+                                        :key="t"
+                                        v-for="t in CardTypes"
+                                    >
+                                        {{ $t(t.toUpperCase()) }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- rune -->
+                            <div>
+                                <label>{{ $t("RUNE") }}: </label>
+                                <select
+                                    class="focus:border-0 focus:outline-0"
+                                    v-model="filters.rune"
+                                >
+                                    <option value="all">
+                                        {{ $t("ALL") }}
+                                    </option>
+                                    <option
+                                        :value="r"
+                                        :key="r"
+                                        :style="{
+                                            backgroundColor: runeColorsCss[r],
+                                        }"
+                                        class="text-white hover:bg-white hover:text-black px-1 py-0.5"
+                                        v-for="r in Runes"
+                                    >
+                                        {{ $t(r.toUpperCase()) }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- energy cost -->
+                            <div>
+                                <label>{{ $t("ENERGY") }}: </label>
+                                <select
+                                    class="focus:border-0 focus:outline-0"
+                                    v-model="filters.energy"
+                                >
+                                    <option value="all">{{ $t("ALL") }}</option>
+                                    <option
+                                        :value="n"
+                                        v-for="n in [
+                                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                                            12,
+                                        ]"
+                                        :key="n"
+                                    >
+                                        {{ n }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- power cost -->
+                            <div>
+                                <label>{{ $t("POWER") }}: </label>
+                                <select
+                                    class="focus:border-0 focus:outline-0"
+                                    v-model="filters.power"
+                                >
+                                    <option value="all">{{ $t("ALL") }}</option>
+                                    <option
+                                        :value="n"
+                                        v-for="n in [1, 2, 3]"
+                                        :key="n"
+                                    >
+                                        {{ n }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="ml-auto">
+                                <button @click="resetFilters" class="border-1 px-2 py-0.5 text-sm rounded-md">{{ $t("RESET") }}</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <ChevronsRight
                         v-if="!showCardList"
                         class="mx-1"
@@ -33,7 +160,7 @@
                         :class="[showCardList ? '' : 'hidden']"
                     >
                         <div
-                            v-for="card in availableCards"
+                            v-for="card in filteredCards"
                             :key="card.cardId"
                             class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 hover:transition-all"
                             @mouseenter="showTooltip(card)"
@@ -218,16 +345,14 @@
                             >
                                 <div
                                     v-if="!showCardImg"
-                                    class="flex items-center justify-between border-b"
+                                    class="flex items-end justify-between border-b"
                                 >
                                     <div>
                                         <small>{{ card.cardId }}</small>
                                         <p class="text-sm">{{ card.name }}</p>
                                     </div>
 
-                                    <div>
-                                        {{ card.count }}
-                                    </div>
+                                    <div>x {{ card.count }}</div>
                                 </div>
 
                                 <div v-else>
@@ -349,12 +474,30 @@ import { Plus } from "lucide-vue-next";
 import { Minus } from "lucide-vue-next";
 import { LayoutGrid } from "lucide-vue-next";
 import { List } from "lucide-vue-next";
+import Notify from "/src/components/Notify.vue";
+import {
+    Runes,
+    runeColorsCss,
+    CardTypes,
+    KeywordList,
+    KeywordColors,
+} from "/src/constant.js";
 
 const base = import.meta.env.BASE_URL;
 const showCardList = ref(true);
 const showCardImg = ref(false);
-const canShowTooltips = ref(false);
+const canShowTooltips = ref(true);
 const runesImage = ref([]);
+const notifyRef = ref(null);
+
+const filters = ref({
+    search: "",
+    keyword: "all",
+    type: "all",
+    rune: "all",
+    energy: "all",
+    power: "all",
+});
 
 onMounted(async () => {
     const response = await fetch(base + "/assets/data/cards-cn.json");
@@ -369,7 +512,29 @@ onMounted(async () => {
     );
 });
 
-const availableCards = ref();
+const availableCards = ref([]);
+
+const filteredCards = computed(() => {
+    return availableCards.value.filter((card) => {
+        return (
+            (filters.value.search === "" ||
+                (card.cardId.includes(filters.value.search) || card.name.includes(filters.value.search))) &&
+            (filters.value.keyword === "all" ||
+                card.keywords
+                    .map((k) => k.name)
+                    .includes(filters.value.keyword)) &&
+            (filters.value.type === "all" ||
+                card.type === filters.value.type) &&
+            (filters.value.rune === "all" ||
+                (card?.runeColor &&
+                    card.runeColor.includes(filters.value.rune))) &&
+            (filters.value.energy === "all" ||
+                card?.cost?.energy === parseInt(filters.value.energy)) &&
+            (filters.value.power === "all" ||
+                card?.cost?.power.count === parseInt(filters.value.power))
+        );
+    });
+});
 
 const selectedDeck = ref({
     legend: null,
@@ -432,9 +597,22 @@ const addToDeck = (card) => {
             if (index === -1) {
                 sDeck.battlefield.push(card);
             } else {
-                // notice added
+                notifyRef.value?.addNotification(
+                    `"${card.name}"在卡组里的数量已达到上限。`,
+                    "info"
+                );
             }
             break;
+        }
+        case "unit": {
+            const isRecruit = (carId) => {
+                return ["FND-273/298"].includes(carId);
+            };
+            if (isRecruit(card.cardId))
+                return notifyRef.value?.addNotification(
+                    `"${card.name}"不能添加。`,
+                    "info"
+                );
         }
         default: {
             if (totalCard.value === 40) return;
@@ -447,7 +625,10 @@ const addToDeck = (card) => {
                 if (sDeck.units[index].count < 3) {
                     sDeck.units[index].count++;
                 } else {
-                    // notice added
+                    notifyRef.value?.addNotification(
+                        `"${card.name}"在卡组里的数量已达到上限。`,
+                        "info"
+                    );
                 }
             }
             break;
@@ -518,6 +699,16 @@ const toogleShow = () => {
     canShowTooltips.value = !canShowTooltips.value;
 };
 
+const resetFilters = () => {
+    filters.value = {
+        search: "",
+        keyword: "all",
+        type: "all",
+        rune: "all",
+        energy: "all",
+        power: "all",
+    };
+};
 </script>
 
 <style>

@@ -15,7 +15,6 @@
     "LEGEND": "传奇",
 
     "FACTION": "势力",
-    "SEARCH RESULT": "搜索结果",
     "ACCELERATE": "急速",
     "ASSAULT": "强攻",
     "GANKING": "游走",
@@ -49,6 +48,7 @@
     "ELITE": "精英",
 
     "SEARCH": "搜索",
+    "SEARCH RESULT": "搜索结果",
     "CARD NAME": "卡牌名称",
     "ID": "编号",
     "RESET": "重置",
@@ -63,9 +63,10 @@
     "PHYSICAL": "物理",
     "CALM": "冷静",
     "ORDER": "秩序",
+
+    "ALL": "全部",
     "LIST": "列表",
     "DECKBUILDER": "卡组构建",
-
     "PICK A LEGEND": "选择您的传奇英雄",
     "LEGEND_CHAMPION": "传奇英雄",
     "PICK_UNITS": "选择您的单位",
