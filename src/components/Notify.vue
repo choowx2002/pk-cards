@@ -28,7 +28,7 @@ defineExpose({ addNotification });
       :key="notif.id"
       class="p-3 rounded-lg shadow-lg text-white flex items-center gap-2 transition-transform duration-300 ease-in-out"
       :class="{
-        'bg-green-500': notif.type === 'success',
+        'bg-green-700': notif.type === 'success',
         'bg-red-500': notif.type === 'error',
         'bg-yellow-500': notif.type === 'warning',
         'bg-teal-700': notif.type === 'info',
