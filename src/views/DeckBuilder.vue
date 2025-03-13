@@ -1482,10 +1482,6 @@ const decreaseCount = (index) => {
     }
 };
 
-const toogleShow = () => {
-    canShowTooltips.value = !canShowTooltips.value;
-};
-
 const resetFilters = () => {
     searchKey.value = "";
     selectedType.value = "ALL";
@@ -1500,30 +1496,24 @@ const resetFilters = () => {
 const copy = () => {
     const deckList = [];
 
-    // 处理 Legend（只有一张）
     if (selectedDeck.value.legend) {
         deckList.push(`1x${selectedDeck.value.legend.cardId}`);
     }
 
-    // 处理符文（Runes）
     selectedDeck.value.runes.forEach((r) => {
         deckList.push(`${r.count}x${r.cardId}`);
     });
 
-    // 处理战场（Battlefield）
     selectedDeck.value.battlefield.forEach((b) => {
         deckList.push(`1x${b.cardId}`);
     });
 
-    // 处理单位（Units，包含其它卡牌）
     selectedDeck.value.units.forEach((u) => {
         deckList.push(`${u.count}x${u.cardId}`);
     });
 
-    // 生成最终文本格式
     const formattedText = deckList.join("\n");
 
-    // 复制到剪贴板
     if (!navigator.clipboard) {
         return notifyRef.value?.addNotification(
             "浏览器不支持复制到剪贴板。",
