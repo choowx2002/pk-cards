@@ -2,7 +2,7 @@
     <Notify ref="notifyRef" />
     <!-- 主体部分 -->
     <div
-        class="flex flex-1 overflow-hidden"
+        class="flex flex-1 overflow-hidden max-w-screen-2xl mx-auto"
         style="height: calc(100vh - 60px)"
         @mousemove="updateTooltipPosition"
         ref="deckBuilder"
@@ -53,7 +53,7 @@
                         <!-- filter options -->
                         <div
                             v-if="showFilter"
-                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] bg-gray-100 z-50 py-3 px-4 sm:z-0 sm:translate-0 sm:w-full grid grid-cols-2 gap-1 rounded-md sm:px-2 sm:py-1"
+                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] bg-gray-100 z-50 py-3 px-4 sm:static sm:z-0 sm:translate-0 sm:w-full grid grid-cols-2 gap-1 rounded-md sm:px-2 sm:py-1"
                         >
                             <div class="col-span-full sm:hidden">
                                 <div class="flex flex-wrap">
@@ -577,13 +577,14 @@
             </h2>
 
             <div
-                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 ml-4"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mx-2"
                 :class="[showCardList ? '' : 'hidden']"
             >
                 <div
                     v-for="card in filteredCards"
                     :key="card.cardId"
-                    class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 hover:transition-all"
+                    class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 ease-in-out"
+                    style="transition-duration: 50ms"
                     @mouseenter="showTooltip(card)"
                     @mouseleave="hideTooltip"
                     @click="addToDeck(card)"
@@ -591,7 +592,7 @@
                     <img
                         :src="card.imgSrc"
                         :alt="card.name"
-                        class="w-full h-24 object-cover rounded object-left-top"
+                        class="w-full lg:max-w-[150px] mx-auto object-cover rounded object-left-top"
                     />
                     <p class="text-center mt-1 text-sm">
                         {{ card.name }}
@@ -614,13 +615,22 @@
 
         <!-- 卡组构建区 -->
         <section
-            class="px-4 border-l-2"
+            class="px-4 border-l-2 customScroll overflow-scroll"
             :class="[!showCardList ? 'w-full' : 'w-1/2 md:w-2/5']"
         >
             <div
-                class="text-lg font-semibold mb-2 flex items-center justify-between gap-2"
+                class="text-lg font-semibold mb-2 flex items-center justify-between gap-2 flex-wrap"
             >
-                <h2>卡组</h2>
+                <div class="items-center flex">
+                    <h2>卡组</h2>
+                    <button
+                        class="text-xs flex sm:hidden p-1 rounded items-center gap-0.5"
+                        @click="copy"
+                    >
+                        {{ $t("COPY") }}{{ $t("TEXT") }} <Copy :size="12" />
+                    </button>
+                </div>
+
                 <div
                     class="flex justify-center items-center overflow-hidden rounded-md border-1 border-gray-700"
                 >
@@ -645,14 +655,29 @@
                         />
                     </div>
                 </div>
+                <div class="w-full items-center hidden sm:flex">
+                    <button
+                        class="text-xs hidden sm:flex p-1 rounded items-center gap-0.5"
+                        @click="copy"
+                    >
+                        {{ $t("COPY") }}{{ $t("TEXT") }} <Copy :size="12" />
+                    </button>
+                    <!-- 
+                    <label class="text-xs">显示卡组信息</label>
+                    <input
+                        type="checkbox"
+                        :checked="showStatus"
+                        @click="showStatus = !showStatus"
+                    /> -->
+                </div>
             </div>
 
             <div id="deck" class="pb-3 overflow-y-scroll customScroll">
                 <div
-                    class="md:flex gap-2"
+                    class="xl:flex gap-2"
                     :class="[
-                        showCardImg ? 'w-fit' : '',
-                        showCardList ? '' : '',
+                        showCardImg ? 'xl:w-fit' : '',
+                        showCardList ? '' : 'md:w-fit sm:flex',
                     ]"
                 >
                     <!-- 传奇 -->
@@ -668,8 +693,12 @@
                             v-if="selectedDeck.legend"
                             @mouseenter="showTooltip(selectedDeck.legend)"
                             @mouseleave="hideTooltip"
+                            @click="selectedDeck.legend = null"
                         >
                             <div v-if="!showCardImg">
+                                <p class="text-xs">
+                                    {{ selectedDeck.legend.cardId }}
+                                </p>
                                 <p class="text-2xl font-bold">
                                     {{ selectedDeck.legend.name }}
                                 </p>
@@ -682,7 +711,7 @@
                                 <img
                                     :src="selectedDeck.legend.imgSrc"
                                     :alt="selectedDeck.legend.name"
-                                    class="max-w-[150px]"
+                                    class="max-w-[150px] mx-auto"
                                 />
                                 <p class="font-bold">
                                     {{ selectedDeck.legend.name }}
@@ -702,34 +731,62 @@
                     <!-- runes -->
                     <fieldset
                         class="border-1 px-2 py-1.5 rounded-md"
-                        :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
+                        v-if="selectedDeck.legend"
+                        :class="[
+                            !showCardImg ? 'h-full' : 'h-full min-h-28',
+                            !showCardImg && !showCardList ? 'sm:min-h-28' : '',
+                        ]"
                     >
                         <legend class="text-md font-semibold">
                             {{ $t("RUNE") }}（{{ totalCount }}/12）
                         </legend>
-                        <div v-if="selectedDeck.legend" class="flex gap-4">
+                        <div
+                            class="gap-2"
+                            :class="[
+                                showCardImg
+                                    ? 'grid grid-cols-1 sm:grid-cols-2'
+                                    : '',
+                                !showCardList ? 'grid sm:grid-cols-1' : '',
+                                !showCardImg && !showCardList ? 'xl:block' : '',
+                                showCardImg && !showCardList
+                                    ? 'grid grid-cols-2'
+                                    : '',
+                            ]"
+                        >
                             <div
                                 v-for="(r, index) in selectedDeck.runes"
                                 :key="r"
-                                class="px-2"
                             >
-                                <div class="h-full items-center">
-                                    <img
+                                <div
+                                    class="h-full items-center bg-white"
+                                    :class="[
+                                        !showCardImg
+                                            ? 'flex w-full justify-between items-center rounded-4xl shadow-md mb-2 px-2'
+                                            : '',
+                                    ]"
+                                >
+                                    <div
                                         v-if="!showCardImg"
-                                        class="rounded-4xl shadow-lg mx-auto"
-                                        :src="getRuneImageUrl(r.rune)"
-                                        alt="CALM"
-                                        title="冷静"
-                                        width="50px"
-                                    />
+                                        class="flex items-center mr-3"
+                                    >
+                                        <img
+                                            :src="getRuneImageUrl(r.rune)"
+                                            :alt="r.rune"
+                                            :title="r.rune"
+                                            width="32px"
+                                        />
+                                        <span>{{
+                                            $t(r.rune.toUpperCase())
+                                        }}</span>
+                                    </div>
 
                                     <img
-                                        v-else
+                                        v-if="showCardImg"
                                         @mouseenter="showTooltip(r)"
                                         @mouseleave="hideTooltip"
                                         :src="r.imgSrc"
                                         :alt="r.rune"
-                                        class="max-w-[150px]"
+                                        class="max-w-[150px] mx-auto"
                                     />
                                     <div
                                         class="flex items-center justify-center gap-1.5"
@@ -751,15 +808,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div
-                            v-else
-                            class="h-full flex justify-center items-center"
-                        >
-                            <p class="opacity-50">
-                                {{ $t("PICK A LEGEND") }}
-                            </p>
-                        </div>
                     </fieldset>
                 </div>
 
@@ -768,66 +816,45 @@
                     <legend class="text-md font-semibold">
                         {{ $t("UNIT") }}（{{ totalCard }}/40）
                     </legend>
-
-                    <div
-                        class="shadow-lg relative px-2 py-1 flex justify-between rounded overflow-hidden"
-                        v-for="(card, index) in selectedDeck.units"
-                        :key="index"
-                    >
-                        <!-- 图片层 -->
-                        <div
-                            class="absolute top-0 right-0 overflow-hidden bottom-0 left-0 z-0"
-                        >
-                            <img
-                                :src="card.imgSrc"
-                                :alt="card.name"
-                                class="object-center bg-center"
-                            />
-                        </div>
-
-                        <!-- 文字内容层 -->
-                        <span class="relative z-10">{{ card.name }}</span>
-                        <span class="relative z-10">x{{ card.count }}</span>
-                    </div>
-
                     <div
                         v-if="selectedDeck.units.length > 0"
-                        class="grid grid-cols-1"
+                        class="grid"
                         :class="[
                             !showCardList
-                                ? 'sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8'
-                                : 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3',
+                                ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8'
+                                : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3',
                         ]"
                     >
                         <div
                             v-for="(card, index) in selectedDeck.units"
                             :key="card.cardId"
-                            class="gap-2 p-2 cursor-pointer mx-1"
+                            class="gap-2 mb-2 cursor-pointer mx-1"
                             @mouseenter="showTooltip(card)"
                             @mouseleave="hideTooltip"
                             @click="removeFromDeck(index, 'card')"
                         >
-                            <div
-                                v-if="!showCardImg"
-                                class="flex items-end justify-between border-b"
-                            >
-                                <div>
-                                    <small>{{ card.cardId }}</small>
-                                    <p class="text-sm">{{ card.name }}</p>
+                            <div class="rounded-md px-1 shadow-md bg-white">
+                                <div
+                                    class="max-w-[150px] w-full mx-auto my-1.5 rounded-md overflow-hidden"
+                                >
+                                    <img
+                                        v-if="showCardImg"
+                                        :src="card.imgSrc"
+                                        :alt="card.name"
+                                    />
                                 </div>
 
-                                <div>x {{ card.count }}</div>
-                            </div>
-
-                            <div v-else>
-                                <img
-                                    :src="card.imgSrc"
-                                    :alt="card.name"
-                                    class="max-w-[150px] mx-auto"
-                                />
-                                <div class="font-bold text-center">
-                                    {{ card.count }}
+                                <div
+                                    class="w-full flex justify-between items-center font-semibold"
+                                >
+                                    <span class="text-sm truncate w-[80%]">{{
+                                        card.name
+                                    }}</span>
+                                    <span>x {{ card.count }}</span>
                                 </div>
+                                <p class="text-[10px]">
+                                    {{ card.cardId }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -853,23 +880,27 @@
                         <div
                             v-for="(card, index) in selectedDeck.battlefield"
                             :key="card.cardId"
-                            :class="[!showCardImg ? ' border-b ' : '']"
-                            class="gap-2 p-2 cursor-pointer mx-1"
+                            class="gap-2 mb-2 cursor-pointer mx-1"
                             @mouseenter="showTooltip(card)"
                             @mouseleave="hideTooltip"
                             @click="removeFromDeck(index, 'bf')"
                         >
-                            <div v-if="!showCardImg">
-                                <small>{{ card.cardId }}</small>
-                                <p class="text-sm">{{ card.name }}</p>
+                            <div class="rounded-md px-1 shadow-md bg-white">
+                                <div class="w-full font-semibold">
+                                    <img
+                                        v-if="showCardImg"
+                                        :src="card.imgSrc"
+                                        :alt="card.name"
+                                        class="max-h-[150px] mx-auto"
+                                    />
+                                    <span class="text-sm truncate w-full">{{
+                                        card.name
+                                    }}</span>
+                                </div>
+                                <p class="text-[10px]">
+                                    {{ card.cardId }}
+                                </p>
                             </div>
-
-                            <img
-                                v-else
-                                :src="card.imgSrc"
-                                :alt="card.name"
-                                class="max-h-[200px] mx-auto"
-                            />
                         </div>
                     </div>
                     <div
@@ -941,34 +972,18 @@
     </div>
 
     <!-- <footer class="p-4 bg-gray-200 flex justify-between">
-            <button
-                class="text-sm bg-red-500 px-3 py-1 rounded"
-                @click="clearDeck"
-            >
-                清除所有
-            </button>
-            <div class="flex mr-auto ml-1">
-                <label>显示小卡片</label>
-                <input
-                    type="checkbox"
-                    :checked="canShowTooltips"
-                    @click="toogleShow"
-                />
-                <label>显示卡组信息</label>
-                <input
-                    type="checkbox"
-                    :checked="showStatus"
-                    @click="showStatus = !showStatus"
-                />
-            </div>
-
-            <button
-                class="text-sm bg-green-400 px-3 py-1 flex rounded items-center gap-2"
-                @click="copy"
-            >
-                {{ $t("COPY") }} <Copy :size="15" />
-            </button>
-        </footer> -->
+        <button class="text-sm bg-red-500 px-3 py-1 rounded" @click="clearDeck">
+            清除所有
+        </button>
+        <div class="flex mr-auto ml-1">
+            <label>显示小卡片</label>
+            <input
+                type="checkbox"
+                :checked="canShowTooltips"
+                @click="toogleShow"
+            />
+        </div>
+    </footer> -->
     <DraggableDiv
         v-if="showStatus"
         :initialPosition="{ x: 200, y: 150 }"
@@ -1011,7 +1026,7 @@ import { Filter } from "lucide-vue-next";
 const base = import.meta.env.BASE_URL;
 const showCardList = ref(true);
 const showCardImg = ref(false);
-const canShowTooltips = ref(true);
+const canShowTooltips = ref(false);
 const runesImage = ref([]);
 const notifyRef = ref(null);
 const deckBuilder = ref(null);
@@ -1353,21 +1368,33 @@ const addToDeck = (card) => {
             const index = sDeck.units.findIndex(
                 (c) => card.cardId === c.cardId
             );
-            if (index === -1) {
+            if (isOverLimit(card.name, card.title)) {
+                notifyRef.value?.addNotification(
+                    `"${card.name}"在卡组里的数量已达到上限。`,
+                    "info"
+                );
+                break;
+            } else if (index === -1) {
                 sDeck.units.push({ ...card, count: 1 });
             } else {
-                if (sDeck.units[index].count < 3) {
-                    sDeck.units[index].count++;
-                } else {
-                    notifyRef.value?.addNotification(
-                        `"${card.name}"在卡组里的数量已达到上限。`,
-                        "info"
-                    );
-                }
+                sDeck.units[index].count++;
             }
             break;
         }
     }
+};
+
+const isOverLimit = (name, title) => {
+    let count = 0;
+
+    selectedDeck.value.units.forEach((u) => {
+        if (
+            u.name.trim() === name.trim() &&
+            (!title ? true : u.title.trim() === title)
+        )
+            count += u.count;
+    });
+    return count >= 3;
 };
 
 const removeFromDeck = (index, type) => {

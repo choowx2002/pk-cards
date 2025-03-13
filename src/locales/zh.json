@@ -72,5 +72,8 @@
     "LEGEND_CHAMPION": "传奇英雄",
     "PICK_UNITS": "选择您的单位",
     "PICK_BF": "选择您的战场",
-    "COPY": "复制"
+    "COPY": "复制",
+    "TEXT": "文本",
+    "IMAGE": "图片",
+    "EXPORT": "导出"
 }
