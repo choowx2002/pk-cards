@@ -1049,12 +1049,12 @@ const totalPages = ref(0);
 const showFilter = ref(false);
 const energyOptions = ref([
     "ALL",
-    ...Array.from({ length: 12 }, (_, i) => i + 1),
+    ...Array.from({ length: 13 }, (_, i) => i),
 ]);
-const powerOptions = ref(["ALL", 1, 2, 3]);
+const powerOptions = ref(["ALL",0 , 1, 2, 3]);
 const mightOptions = ref([
     "ALL",
-    ...Array.from({ length: 12 }, (_, i) => i + 1),
+    ...Array.from({ length: 13 }, (_, i) => i),
 ]);
 const selectedKeyword = ref("ALL");
 const selectedType = ref("ALL");
@@ -1235,6 +1235,12 @@ watch(
                         }
                         desc.energydistributed[unit.cost.energy][unit.runeColor[0]] =
                         (desc.energydistributed[unit.cost.energy][unit.runeColor[0]] || 0) + unit.count;
+                    } else {
+                        if (!desc.energydistributed[0]) {
+                            desc.energydistributed[0] = {};
+                        }
+                        desc.energydistributed[0][unit.runeColor[0]] =
+                        (desc.energydistributed[0][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update power distribution
@@ -1244,6 +1250,12 @@ watch(
                         }
                         desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] =
                         (desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] || 0) + unit.count;
+                    } else {
+                        if (!desc.powerdistributed[0]) {
+                            desc.powerdistributed[0] = {};
+                        }
+                        desc.powerdistributed[0][unit.runeColor[0]] =
+                        (desc.powerdistributed[0][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update might distribution
@@ -1253,6 +1265,12 @@ watch(
                         }
                         desc.mightdistributed[unit.might][unit.runeColor[0]] =
                         (desc.mightdistributed[unit.might][unit.runeColor[0]] || 0) + unit.count;
+                    } else if (unit.type === 'Champion' || unit.type === 'Unit') {
+                        if (!desc.mightdistributed[0]) {
+                            desc.mightdistributed[0] = {};
+                        }
+                        desc.mightdistributed[0][unit.runeColor[0]] =
+                        (desc.mightdistributed[0][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update rune distribution

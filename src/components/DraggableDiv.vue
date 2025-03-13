@@ -10,7 +10,31 @@
         >
             <GripHorizontalIcon />
             <X class="absolute right-0" @click="close" />
-            <div class="absolute left-0">{{ data?.total ?? 0 }}/40</div>
+            <div class="absolute left-0 flex items-center">
+                <span
+                    class="flex items-center gap-0.5 px-2"
+                    :class="[
+                        data.total !== 40
+                            ? 'bg-red-700 text-white'
+                            : 'bg-green-500',
+                    ]"
+                    >{{ data?.total ?? 0 }}/40</span
+                >
+                <span
+                    class="flex items-center gap-0.5 px-2"
+                    :class="[
+                        !data.legendChampionPresent
+                            ? 'bg-red-700 text-white'
+                            : 'bg-green-500',
+                    ]"
+                    >专属英雄
+                    <CheckCircle2
+                        v-if="data.legendChampionPresent"
+                        :size="16"
+                    />
+                    <XCircle v-else :size="16" />
+                </span>
+            </div>
         </div>
         <!-- <div class="w-full h-full py-2">
             {{ data }}
@@ -51,7 +75,7 @@
                 <p class="w-full">{{ $t("ENERGY") }}</p>
                 <div class="w-full flex flex-nowrap justify-center gap-0.5">
                     <div
-                        v-for="energy in 12"
+                        v-for="energy in [...Array(13).keys()]"
                         :key="energy"
                         class="flex items-center mb-1 flex-col"
                     >
@@ -87,9 +111,12 @@
                 <p class="w-full">{{ $t("POWER") }}</p>
                 <div class="w-full flex flex-nowrap justify-center gap-0.5">
                     <div
-                        v-for="power in (Object.keys(data.powerdistributed).at(
-                            -1
-                        ) ?? 3) * 1"
+                        v-for="power in [
+                            ...Array(
+                                Object.keys(data.powerdistributed).at(-1) * 1 +
+                                    1 ?? 4
+                            ).keys(),
+                        ]"
                         :key="power"
                         class="flex items-center mb-1 flex-col"
                     >
@@ -122,9 +149,12 @@
                 <p class="w-full">{{ $t("MIGHT") }}</p>
                 <div class="w-full flex flex-nowrap justify-center gap-0.5">
                     <div
-                        v-for="might in (Object.keys(data.mightdistributed).at(
-                            -1
-                        ) ?? 12) * 1"
+                        v-for="might in [
+                            ...Array(
+                                Object.keys(data.mightdistributed).at(-1) * 1 +
+                                    1 ?? 13
+                            ).keys(),
+                        ]"
                         :key="might"
                         class="flex items-center mb-1 flex-col"
                     >
@@ -162,6 +192,8 @@ import { GripHorizontalIcon } from "lucide-vue-next";
 import { ref, defineProps, computed, defineEmits } from "vue";
 import { runeColorsCss } from "/src/constant.js";
 import { X } from "lucide-vue-next";
+import { CheckCircle2 } from "lucide-vue-next";
+import { XCircle } from "lucide-vue-next";
 const props = defineProps({
     initialPosition: {
         type: Object,
