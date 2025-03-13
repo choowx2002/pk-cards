@@ -89,7 +89,7 @@
                     <div
                         v-for="power in Object.keys(data.powerdistributed).at(
                             -1
-                        ) * 1"
+                        ) * 1 ?? 3"
                         :key="power"
                         class="flex items-center mb-1 flex-col"
                     >
@@ -124,7 +124,7 @@
                     <div
                         v-for="might in Object.keys(data.mightdistributed).at(
                             -1
-                        ) * 1"
+                        ) * 1 ?? 12"
                         :key="might"
                         class="flex items-center mb-1 flex-col"
                     >
