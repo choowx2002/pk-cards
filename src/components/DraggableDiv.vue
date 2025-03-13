@@ -10,7 +10,7 @@
         >
             <GripHorizontalIcon />
             <X class="absolute right-0" @click="close" />
-            <div class="absolute left-0">{{ data.total }}/40</div>
+            <div class="absolute left-0">{{ data?.total ?? 0 }}/40</div>
         </div>
         <!-- <div class="w-full h-full py-2">
             {{ data }}
@@ -87,9 +87,9 @@
                 <p class="w-full">{{ $t("POWER") }}</p>
                 <div class="w-full flex flex-nowrap justify-center gap-0.5">
                     <div
-                        v-for="power in Object.keys(data.powerdistributed).at(
+                        v-for="power in (Object.keys(data.powerdistributed).at(
                             -1
-                        ) * 1 ?? 3"
+                        ) ?? 3) * 1"
                         :key="power"
                         class="flex items-center mb-1 flex-col"
                     >
@@ -122,9 +122,9 @@
                 <p class="w-full">{{ $t("MIGHT") }}</p>
                 <div class="w-full flex flex-nowrap justify-center gap-0.5">
                     <div
-                        v-for="might in Object.keys(data.mightdistributed).at(
+                        v-for="might in (Object.keys(data.mightdistributed).at(
                             -1
-                        ) * 1 ?? 12"
+                        ) ?? 12) * 1"
                         :key="might"
                         class="flex items-center mb-1 flex-col"
                     >
