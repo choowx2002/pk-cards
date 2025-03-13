@@ -145,6 +145,8 @@ const backListPage = () => {
                         />
                     </legend>
 
+                    <div v-if="card?.title || card?.champion" class="text-sm font-semibold italic">{{ card.title ?? card.champion }}</div>
+
                     <!-- 符文、能量、力量 -->
                     <div class="flex justify-center items-stretch gap-2">
                         <fieldset
