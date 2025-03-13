@@ -12,7 +12,7 @@
             class="w-1/2 md:w-3/5 bg-gray-100 customScroll overflow-scroll"
             :class="[showCardList ? 'max-w-[5000px]' : 'max-w-fit']"
         >
-            <h2 class="mb-2 flex justify-between items-center w-full">
+            <h2 class="mb-2 flex justify-between items-center w-full sm:relative z-50">
                 <div
                     class="flex gap-2 pl-4 items-center w-full"
                     v-if="showCardList"
@@ -47,13 +47,13 @@
                         <!-- backdrop -->
                         <div
                             v-if="showFilter"
-                            class="absolute sm:hidden top-0 bottom-0 left-0 right-0 bg-black opacity-50"
+                            class="absolute sm:hidden top-0 left-0 w-screen h-screen bg-black opacity-50 z-40"
                             @click="toogleFilter"
                         ></div>
                         <!-- filter options -->
                         <div
                             v-if="showFilter"
-                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] bg-gray-100 z-50 py-3 px-4 sm:static sm:z-0 sm:translate-0 sm:w-full grid grid-cols-2 gap-1 rounded-md sm:px-2 sm:py-1"
+                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] bg-gray-100 z-50 py-3 px-4 sm:static sm:z-10 sm:translate-0 sm:w-full grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 rounded-md sm:px-2 sm:py-1"
                         >
                             <div class="col-span-full sm:hidden">
                                 <div class="flex flex-wrap">
@@ -183,7 +183,7 @@
                                         }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="s in Series"
@@ -223,7 +223,7 @@
                                         {{ $t(selectedType.toUpperCase()) }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="t in CardTypes.filter(
@@ -271,7 +271,7 @@
                                         {{ $t(selectedRune.toUpperCase()) }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="r in Runes"
@@ -313,7 +313,7 @@
                                         }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="n in energyOptions"
@@ -352,7 +352,7 @@
                                         }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="n in powerOptions"
@@ -391,7 +391,7 @@
                                         }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="n in mightOptions"
@@ -426,7 +426,7 @@
                                         {{ $t(selectedKeyword.toUpperCase()) }}
                                     </ListboxButton>
                                     <ListboxOptions
-                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] lg:min-w-fit customScroll max-h-62 overflow-y-auto"
                                     >
                                         <ListboxOption
                                             v-for="k in KeywordList"
@@ -583,12 +583,15 @@
                 <div
                     v-for="card in filteredCards"
                     :key="card.cardId"
-                    class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 ease-in-out"
+                    class="bg-white relative z-20 shadow-md rounded pb-2 overflow-hidden px-0.5 cursor-pointer hover:scale-105 active:animate-pulse ease-in-out"
                     style="transition-duration: 50ms"
                     @mouseenter="showTooltip(card)"
                     @mouseleave="hideTooltip"
                     @click="addToDeck(card)"
                 >
+                    <div class="absolute right-0 top-0 p-0.5" style="background-color: rgba(0, 0, 0, 0.5);">
+                        <ExternalLink class="text-white" :size="16" @click="routeToCardDetails(card.cardId)"/>
+                    </div>
                     <img
                         :src="card.imgSrc"
                         :alt="card.name"
@@ -631,6 +634,11 @@
                     </button>
                 </div>
 
+                <div class="mr-auto active:scale-75" title="点击查看构筑信息" @click="showStatus = !showStatus">
+                    <Info class="text-teal-700" :size="16"/>
+                </div>
+                
+
                 <div
                     class="flex justify-center items-center overflow-hidden rounded-md border-1 border-gray-700"
                 >
@@ -657,18 +665,11 @@
                 </div>
                 <div class="w-full items-center hidden sm:flex">
                     <button
-                        class="text-xs hidden sm:flex p-1 rounded items-center gap-0.5"
+                        class="text-xs hidden sm:flex p-1 rounded items-center gap-0.5 bg-gray-200"
                         @click="copy"
                     >
                         {{ $t("COPY") }}{{ $t("TEXT") }} <Copy :size="12" />
                     </button>
-                    <!-- 
-                    <label class="text-xs">显示卡组信息</label>
-                    <input
-                        type="checkbox"
-                        :checked="showStatus"
-                        @click="showStatus = !showStatus"
-                    /> -->
                 </div>
             </div>
 
@@ -680,10 +681,10 @@
                         showCardList ? '' : 'md:w-fit sm:flex',
                     ]"
                 >
-                    <!-- 传奇 -->
+                    <!-- legend -->
                     <fieldset
-                        class="border-1 px-2 py-1.5 rounded-md"
-                        :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
+                        class="border-1 px-2 py-1.5 rounded-md min-h-28"
+                        :class="[!selectedDeck.legend ? 'h-28' : 'h-full']"
                     >
                         <legend class="text-md font-semibold">
                             {{ $t("LEGEND") }}
@@ -850,7 +851,7 @@
                                     <span class="text-sm truncate w-[80%]">{{
                                         card.name
                                     }}</span>
-                                    <span>x {{ card.count }}</span>
+                                    <span>x{{ card.count }}</span>
                                 </div>
                                 <p class="text-[10px]">
                                     {{ card.cardId }}
@@ -918,18 +919,18 @@
     <div
         ref="tooltip"
         v-if="tooltipCard"
-        class="fixed p-2 bg-gray-200 text-black text-sm rounded shadow-lg max-w-52 min-w-40"
+        class="fixed p-2 bg-gray-200 text-black text-sm rounded shadow-lg max-w-52 min-w-40 z-60"
         :style="{
             top: tooltipPosition.y + 'px',
             left: tooltipPosition.x + 'px',
         }"
     >
-        <img
+        <!-- <img
             v-if="!showCardImg"
             :src="tooltipCard.imgSrc"
             alt=""
             class="mx-auto max-w-[100px] rounded-md"
-        />
+        /> -->
         <p class="font-bold text-center my-0.5">
             {{ tooltipCard.name }}
         </p>
@@ -986,7 +987,9 @@
     </footer> -->
     <DraggableDiv
         v-if="showStatus"
+        class="z-100"
         :initialPosition="{ x: 200, y: 150 }"
+        @close="showStatus = false"
         :data="{
             ...deckDescription,
             legendChampionPresent: selectedDeck.legend_champion_present,
@@ -1020,9 +1023,12 @@ import {
     ListboxOption,
 } from "@headlessui/vue";
 import { Copy } from "lucide-vue-next";
-import { Search } from "lucide-vue-next";
 import { Filter } from "lucide-vue-next";
+import { ExternalLink } from "lucide-vue-next";
+import { useRouter } from "vue-router";
+import { Info } from "lucide-vue-next";
 
+const router = useRouter();
 const base = import.meta.env.BASE_URL;
 const showCardList = ref(true);
 const showCardImg = ref(false);
@@ -1202,6 +1208,7 @@ const deckDescription = ref({
     powerdistributed: {},
     mightdistributed: {},
     runedistributed: {},
+    total: 0,
 });
 
 watch(
@@ -1223,23 +1230,29 @@ watch(
 
                     // Update energy distribution
                     if (unit.cost?.energy) {
-                        desc.energydistributed[unit.cost.energy] =
-                            (desc.energydistributed[unit.cost.energy] || 0) +
-                            unit.count;
+                        if (!desc.energydistributed[unit.cost.energy]) {
+                            desc.energydistributed[unit.cost.energy] = {};
+                        }
+                        desc.energydistributed[unit.cost.energy][unit.runeColor[0]] =
+                        (desc.energydistributed[unit.cost.energy][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update power distribution
                     if (unit?.cost?.power.count) {
-                        desc.powerdistributed[unit.cost.power.count] =
-                            (desc.powerdistributed[unit.cost.power.count] ||
-                                0) + unit.count;
+                        if (!desc.powerdistributed[unit.cost.power.count]) {
+                            desc.powerdistributed[unit.cost.power.count] = {};
+                        }
+                        desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] =
+                        (desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update might distribution
                     if (unit.might) {
-                        desc.mightdistributed[unit.might] =
-                            (desc.mightdistributed[unit.might] || 0) +
-                            unit.count;
+                        if (!desc.mightdistributed[unit.might]) {
+                            desc.mightdistributed[unit.might] = {};
+                        }
+                        desc.mightdistributed[unit.might][unit.runeColor[0]] =
+                        (desc.mightdistributed[unit.might][unit.runeColor[0]] || 0) + unit.count;
                     }
 
                     // Update rune distribution
@@ -1250,6 +1263,7 @@ watch(
                         });
                     }
 
+                    desc.total+=unit.count;
                     return desc;
                 },
                 {
@@ -1258,6 +1272,7 @@ watch(
                     powerdistributed: {},
                     mightdistributed: {},
                     runedistributed: {},
+                    total: 0,
                 }
             );
         } else {
@@ -1267,6 +1282,7 @@ watch(
                 powerdistributed: {},
                 mightdistributed: {},
                 runedistributed: {},
+                total: 0
             };
         }
     },
@@ -1282,6 +1298,16 @@ const tooltipCard = ref(null);
 const tooltipPosition = ref({ x: 0, y: 0 });
 
 const showTooltip = (card) => {
+    const isMobile = () => {
+        return (
+            /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+            ) || window.innerWidth <= 768
+        );
+    };
+
+    if (isMobile()) return;
+ 
     if (!canShowTooltips.value) {
         hideTooltip();
         return;
@@ -1509,6 +1535,10 @@ const copy = () => {
     }
     navigator.clipboard.writeText(formattedText);
     notifyRef.value?.addNotification("卡组文本已复制。", "success");
+};
+const routeToCardDetails = (id) => {
+  const url = router.resolve({ path: "/card", query: { cardId: encodeURIComponent(id) } }).href;
+  window.open(url, "_blank");
 };
 </script>
 
