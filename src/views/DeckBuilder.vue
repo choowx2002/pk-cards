@@ -1,533 +1,946 @@
 <template>
     <Notify ref="notifyRef" />
+    <!-- 主体部分 -->
     <div
-        class="flex flex-col h-[calc(100vh-68px)] mt-2"
+        class="flex flex-1 overflow-hidden"
+        style="height: calc(100vh - 60px)"
         @mousemove="updateTooltipPosition"
         ref="deckBuilder"
     >
-        <!-- 主体部分 -->
-        <div class="flex flex-1 overflow-hidden">
-            <!-- 卡牌选择区 -->
-            <aside
-                class="w-1/2 md:w-3/5 bg-gray-100 overflow-hidden"
-                :class="[showCardList ? 'max-w-[5000px]' : 'max-w-fit']"
-            >
-                <h2 class="mb-2 flex justify-between items-center w-full">
-                    <div
-                        class="flex gap-2 pl-4 items-center w-full"
-                        v-if="showCardList"
-                    >
-                        <!-- filter area -->
-                        <div
-                            class="flex gap-2 text-sm items-center flex-wrap w-full"
-                        >
-                            <!-- seacrh -->
-                            <div class="border-2 py-0.5 px-2 rounded-lg">
-                                <label class="border-r-1 pr-1">{{
-                                    $t("SEARCH")
-                                }}</label>
-                                <input
-                                    type="text"
-                                    aria-colspan="4"
-                                    class="pl-1 focus:border-0 focus:outline-0"
-                                    v-model="filters.search"
+        <!-- 卡牌选择区 -->
+        <aside
+            class="w-1/2 md:w-3/5 bg-gray-100 customScroll overflow-scroll"
+            :class="[showCardList ? 'max-w-[5000px]' : 'max-w-fit']"
+        >
+            <h2 class="mb-2 flex justify-between items-center w-full">
+                <div
+                    class="flex gap-2 pl-4 items-center w-full"
+                    v-if="showCardList"
+                >
+                    <!-- filter area -->
+                    <div class="w-full">
+                        <!-- search key -->
+                        <div class="w-full py-1 flex items-center">
+                            <input
+                                v-model="searchKey"
+                                :placeholder="`${$t('CARD NAME')}/${$t('ID')}`"
+                                class="w-full border-b-2 focus:outline-0 text-black"
+                            />
+                            <div
+                                class="rounded p-1 ml-1 border"
+                                :class="showFilter ? 'bg-teal-700' : 'border-0'"
+                            >
+                                <Filter
+                                    :size="18"
+                                    @click="toogleFilter"
+                                    :class="showFilter ? 'text-white' : ''"
                                 />
                             </div>
-
-                            <!-- keyword -->
-                            <div>
-                                <label>{{ $t("KEYWORD") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.keyword"
-                                >
-                                    <option value="all">
-                                        {{ $t("ALL") }}
-                                    </option>
-                                    <option
-                                        :value="k"
-                                        :key="k"
-                                        v-for="k in KeywordList"
-                                    >
-                                        {{ $t(k.toUpperCase()) }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- card type -->
-                            <div>
-                                <label>{{ $t("TYPE") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.type"
-                                >
-                                    <option value="all">
-                                        {{ $t("ALL") }}
-                                    </option>
-                                    <option
-                                        :value="t"
-                                        :key="t"
-                                        v-for="t in CardTypes"
-                                    >
-                                        {{ $t(t.toUpperCase()) }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- rune -->
-                            <div>
-                                <label>{{ $t("RUNE") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.rune"
-                                >
-                                    <option value="all">
-                                        {{ $t("ALL") }}
-                                    </option>
-                                    <option
-                                        :value="r"
-                                        :key="r"
-                                        :style="{
-                                            backgroundColor: runeColorsCss[r],
-                                        }"
-                                        class="text-white hover:bg-white hover:text-black px-1 py-0.5"
-                                        v-for="r in Runes"
-                                    >
-                                        {{ $t(r.toUpperCase()) }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- energy cost -->
-                            <div>
-                                <label>{{ $t("ENERGY") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.energy"
-                                >
-                                    <option value="all">{{ $t("ALL") }}</option>
-                                    <option
-                                        :value="n"
-                                        v-for="n in [
-                                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-                                            12,
-                                        ]"
-                                        :key="n"
-                                    >
-                                        {{ n }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- power cost -->
-                            <div>
-                                <label>{{ $t("POWER") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.power"
-                                >
-                                    <option value="all">{{ $t("ALL") }}</option>
-                                    <option
-                                        :value="n"
-                                        v-for="n in [1, 2, 3]"
-                                        :key="n"
-                                    >
-                                        {{ n }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- might cost -->
-                            <div>
-                                <label>{{ $t("MIGHT") }}: </label>
-                                <select
-                                    class="focus:border-0 focus:outline-0"
-                                    v-model="filters.might"
-                                >
-                                    <option value="all">{{ $t("ALL") }}</option>
-                                    <option
-                                        :value="n"
-                                        v-for="n in [
-                                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-                                            12,
-                                        ]"
-                                        :key="n"
-                                    >
-                                        {{ n }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="ml-auto">
-                                <button
-                                    @click="resetFilters"
-                                    class="border-1 px-2 py-0.5 text-sm rounded-md"
-                                >
-                                    {{ $t("RESET") }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ChevronsRight
-                        v-if="!showCardList"
-                        class="mx-1"
-                        :stroke-width="1.5"
-                        @click="toogleCartList"
-                    />
-                    <ChevronsLeft
-                        v-if="showCardList"
-                        class="mx-1"
-                        :stroke-width="1.5"
-                        @click="toogleCartList"
-                    />
-                </h2>
-                <div
-                    class="overflow-y-scroll ml-4 overflow-x-hidden customScroll h-[calc(100vh-156px)] pb-3"
-                >
-                    <div
-                        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
-                        :class="[showCardList ? '' : 'hidden']"
-                    >
-                        <div
-                            v-for="card in filteredCards"
-                            :key="card.cardId"
-                            class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 hover:transition-all"
-                            @mouseenter="showTooltip(card)"
-                            @mouseleave="hideTooltip"
-                            @click="addToDeck(card)"
-                        >
-                            <img
-                                :src="card.imgSrc"
-                                :alt="card.name"
-                                class="w-full h-24 object-cover rounded object-left-top"
-                            />
-                            <p class="text-center mt-1 text-sm">
-                                {{ card.name }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- 卡组构建区 -->
-            <section
-                class="px-4 border-l-2"
-                :class="[!showCardList ? 'w-full' : 'w-1/2 md:w-2/5']"
-            >
-                <div
-                    class="text-lg font-semibold mb-2 flex items-center justify-between gap-2"
-                >
-                    <h2>卡组</h2>
-                    <div
-                        class="flex justify-center items-center overflow-hidden rounded-md border-1 border-gray-700"
-                    >
-                        <div
-                            @click="showCardImg = false"
-                            class="p-1"
-                            :class="[
-                                !showCardImg ? 'bg-teal-700' : 'bg-gray-700',
-                            ]"
-                        >
-                            <List
-                                :class="[!showCardImg ? 'text-white' : '']"
-                                :size="16"
+                            <ChevronsLeft
+                                v-if="showCardList"
+                                class="mx-1"
+                                :stroke-width="1.5"
+                                @click="toogleCartList"
                             />
                         </div>
+
+                        <!-- backdrop -->
                         <div
-                            @click="showCardImg = true"
-                            class="p-1"
-                            :class="[showCardImg ? 'bg-teal-700' : '']"
+                            v-if="showFilter"
+                            class="absolute sm:hidden top-0 bottom-0 left-0 right-0 bg-black opacity-50"
+                            @click="toogleFilter"
+                        ></div>
+                        <!-- filter options -->
+                        <div
+                            v-if="showFilter"
+                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] bg-gray-100 z-50 py-3 px-4 sm:z-0 sm:translate-0 sm:w-full grid grid-cols-2 gap-1 rounded-md sm:px-2 sm:py-1"
                         >
-                            <LayoutGrid
-                                :class="[
-                                    showCardImg ? 'text-white' : 'text-black',
-                                ]"
-                                :size="16"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    id="deck"
-                    class="h-[calc(100vh-156px)] pb-3 overflow-y-scroll customScroll"
-                >
-                    <div
-                        class="flex gap-2"
-                        :class="[
-                            showCardImg ? 'w-fit' : '',
-                            showCardList ? '' : '',
-                        ]"
-                    >
-                        <!-- 传奇 -->
-                        <fieldset
-                            class="border-1 px-2 py-1.5 rounded-md"
-                            :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
-                        >
-                            <legend class="text-md font-semibold">
-                                {{ $t("LEGEND") }}
-                            </legend>
-
-                            <div
-                                v-if="selectedDeck.legend"
-                                @mouseenter="showTooltip(selectedDeck.legend)"
-                                @mouseleave="hideTooltip"
-                            >
-                                <div v-if="!showCardImg">
-                                    <p class="text-2xl font-bold">
-                                        {{ selectedDeck.legend.name }}
-                                    </p>
-                                    <p class="text-md font-medium">
-                                        {{ $t("LEGEND_CHAMPION") }}:{{ " " }}
-                                        {{ selectedDeck.legend.champion }}
-                                    </p>
-                                </div>
-                                <div class="text-center" v-if="showCardImg">
-                                    <img
-                                        :src="selectedDeck.legend.imgSrc"
-                                        :alt="selectedDeck.legend.name"
-                                        class="max-w-[150px]"
-                                    />
-                                    <p class="font-bold">
-                                        {{ selectedDeck.legend.name }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                v-else
-                                class="h-full flex justify-center items-center"
-                            >
-                                <p class="opacity-50">
-                                    {{ $t("PICK A LEGEND") }}
-                                </p>
-                            </div>
-                        </fieldset>
-
-                        <!-- runes -->
-                        <fieldset
-                            class="border-1 px-2 py-1.5 rounded-md"
-                            :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
-                        >
-                            <legend class="text-md font-semibold">
-                                {{ $t("RUNE") }}（{{ totalCount }}/12）
-                            </legend>
-                            <div v-if="selectedDeck.legend" class="flex gap-4">
-                                <div
-                                    v-for="(r, index) in selectedDeck.runes"
-                                    :key="r"
-                                    class="px-2"
-                                >
-                                    <div class="h-full items-center">
-                                        <img
-                                            v-if="!showCardImg"
-                                            class="rounded-4xl shadow-lg mx-auto"
-                                            :src="getRuneImageUrl(r.rune)"
-                                            alt="CALM"
-                                            title="冷静"
-                                            width="50px"
-                                        />
-
-                                        <img
-                                            v-else
-                                            @mouseenter="showTooltip(r)"
-                                            @mouseleave="hideTooltip"
-                                            :src="r.imgSrc"
-                                            :alt="r.rune"
-                                            class="max-w-[150px]"
-                                        />
+                            <div class="col-span-full sm:hidden">
+                                <div class="flex flex-wrap">
+                                    <div
+                                        v-for="(tag, index) in tags"
+                                        :key="tag"
+                                        class=""
+                                    >
                                         <div
-                                            class="flex items-center justify-center gap-1.5"
+                                            v-if="tag.type === 'rune'"
+                                            class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
                                         >
-                                            <Minus
-                                                class="rounded-xl border-1"
-                                                :size="16"
-                                                @click="decreaseCount(index)"
+                                            <img
+                                                :src="`${base}/assets/images/${tag.name.toUpperCase()}.webp`"
+                                                :alt="tag.type"
+                                                class="w-5 h-5 mr-2 scale-125"
                                             />
-                                            <p class="font-bold">
-                                                {{ r.count }}
-                                            </p>
-                                            <Plus
-                                                class="rounded-xl border-1"
-                                                :size="16"
-                                                @click="increaseCount(index)"
+                                            <span>{{
+                                                $t(tag.name.toUpperCase())
+                                            }}</span>
+                                            <span
+                                                class="ml-2 cursor-pointer text-black"
+                                                @click="removeTag(index)"
+                                            >
+                                                &times;
+                                            </span>
+                                        </div>
+                                        <div
+                                            v-else-if="tag.type === 'type'"
+                                            class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                        >
+                                            <img
+                                                :src="`${base}/assets/images/${tag.name.toLowerCase()}.svg`"
+                                                :alt="tag.type"
+                                                class="w-5 h-5 mr-2"
                                             />
+                                            <span>{{
+                                                $t(tag.name.toUpperCase())
+                                            }}</span>
+                                            <span
+                                                class="ml-2 cursor-pointer text-black"
+                                                @click="removeTag(index)"
+                                            >
+                                                &times;
+                                            </span>
+                                        </div>
+                                        <div
+                                            v-else-if="
+                                                [
+                                                    'energy',
+                                                    'power',
+                                                    'might',
+                                                ].includes(tag.type)
+                                            "
+                                            class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                        >
+                                            <img
+                                                v-if="tag.type === 'energy'"
+                                                :src="`${base}/assets/images/energy-${tag.name}.svg`"
+                                                :alt="tag.type"
+                                                class="w-5 h-5 mr-2"
+                                            />
+                                            <img
+                                                v-else-if="tag.type === 'might'"
+                                                :src="`${base}/assets/images/might.svg`"
+                                                :alt="tag.type"
+                                                class="w-5 h-5 mr-2"
+                                            />
+                                            <span v-else
+                                                >{{
+                                                    $t(tag.type.toUpperCase())
+                                                }}:
+                                            </span>
+                                            <span> {{ tag.name }}</span>
+                                            <span
+                                                class="ml-2 cursor-pointer text-black"
+                                                @click="removeTag(index)"
+                                            >
+                                                &times;
+                                            </span>
+                                        </div>
+                                        <div
+                                            v-else-if="tag.type === 'keyword'"
+                                            class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center text-white"
+                                            :style="`background: ${
+                                                KeywordColors[tag.name]
+                                            }`"
+                                        >
+                                            <span class="mr-2">
+                                                {{ $t(tag.name.toUpperCase()) }}
+                                            </span>
+                                            <span
+                                                class="cursor-pointer text-white"
+                                                @click="removeTag(index)"
+                                            >
+                                                &times;
+                                            </span>
+                                        </div>
+                                        <div
+                                            v-else-if="tag.type === 'series'"
+                                            class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                        >
+                                            <span class="mr-2">
+                                                {{ $t(tag.name.toUpperCase()) }}
+                                            </span>
+                                            <span
+                                                class="cursor-pointer"
+                                                @click="removeTag(index)"
+                                            >
+                                                &times;
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- Series -->
+                            <div class="mb-2">
+                                <label>{{ $t("SERIES") }}: </label>
+                                <Listbox v-model="selectedSeries">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm"
+                                    >
+                                        {{
+                                            selectedSeries === "ALL"
+                                                ? $t("ALL")
+                                                : selectedSeries
+                                        }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="s in Series"
+                                            :key="s"
+                                            :value="s"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                {{ s }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+                            <!-- Card Type -->
+                            <div class="mb-2">
+                                <label>{{ $t("TYPE") }}: </label>
+                                <Listbox v-model="selectedType">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm justify-center items-center flex"
+                                    >
+                                        <img
+                                            v-if="selectedType !== 'ALL'"
+                                            :src="`${base}/assets/images/${selectedType.toLowerCase()}.svg`"
+                                            :alt="selectedType"
+                                            class="h-5 w-5 p-0.5 mr-1"
+                                        />
+                                        {{ $t(selectedType.toUpperCase()) }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="t in CardTypes.filter(
+                                                (t) => t !== 'Rune'
+                                            )"
+                                            :key="t"
+                                            :value="t"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                class="flex items-center px-3 py-2 cursor-pointer"
+                                                :class="[
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                <img
+                                                    :src="`${base}/assets/images/${t.toLowerCase()}.svg`"
+                                                    :alt="t"
+                                                    class="w-5 h-5 mr-2"
+                                                />
+                                                {{ $t(t.toUpperCase()) }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
 
-                            <div
-                                v-else
-                                class="h-full flex justify-center items-center"
-                            >
-                                <p class="opacity-50">
-                                    {{ $t("PICK A LEGEND") }}
+                            <!-- Rune -->
+                            <div class="mb-2">
+                                <label>{{ $t("RUNE") }}: </label>
+                                <Listbox v-model="selectedRune">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm flex justify-center items-center"
+                                    >
+                                        <img
+                                            v-if="selectedRune !== 'ALL'"
+                                            :src="`${base}/assets/images/${selectedRune.toUpperCase()}.webp`"
+                                            :alt="selectedRune"
+                                            class="h-6 w-6"
+                                        />
+                                        {{ $t(selectedRune.toUpperCase()) }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="r in Runes"
+                                            :key="r"
+                                            :value="r"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer flex items-center',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected ? 'font-bold' : '',
+                                                ]"
+                                            >
+                                                <img
+                                                    :src="`${base}/assets/images/${r.toUpperCase()}.webp`"
+                                                    :alt="r"
+                                                    class="w-5 h-5 mr-2"
+                                                />
+                                                {{ $t(r.toUpperCase()) }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+
+                            <!-- Energy Cost -->
+                            <div class="mb-2">
+                                <label>{{ $t("ENERGY") }}: </label>
+                                <Listbox v-model="selectedEnergy">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm"
+                                    >
+                                        {{
+                                            selectedEnergy === "ALL"
+                                                ? $t("ALL")
+                                                : selectedEnergy
+                                        }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="n in energyOptions"
+                                            :key="n"
+                                            :value="n"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                {{ n }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+
+                            <!-- Power Cost -->
+                            <div class="mb-2">
+                                <label>{{ $t("POWER") }}: </label>
+                                <Listbox v-model="selectedPower">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm"
+                                    >
+                                        {{
+                                            selectedPower === "ALL"
+                                                ? $t("ALL")
+                                                : selectedPower
+                                        }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="n in powerOptions"
+                                            :key="n"
+                                            :value="n"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                {{ n }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+
+                            <!-- Might Cost -->
+                            <div class="mb-2">
+                                <label>{{ $t("MIGHT") }}: </label>
+                                <Listbox v-model="selectedMight">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm"
+                                    >
+                                        {{
+                                            selectedMight === "ALL"
+                                                ? $t("ALL")
+                                                : selectedMight
+                                        }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="n in mightOptions"
+                                            :key="n"
+                                            :value="n"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                {{ n }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+
+                            <!-- Keyword -->
+                            <div class="mb-2">
+                                <label>{{ $t("KEYWORD") }}: </label>
+                                <Listbox v-model="selectedKeyword">
+                                    <ListboxButton
+                                        class="w-full px-1 py-0.5 border rounded bg-white shadow-sm text-sm"
+                                    >
+                                        {{ $t(selectedKeyword.toUpperCase()) }}
+                                    </ListboxButton>
+                                    <ListboxOptions
+                                        class="absolute bg-white border rounded shadow-md z-50 min-w-[20vw] customScroll max-h-62 overflow-y-auto"
+                                    >
+                                        <ListboxOption
+                                            v-for="k in KeywordList"
+                                            :key="k"
+                                            :value="k"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    'px-3 py-2 cursor-pointer',
+                                                    active ? 'bg-blue-100' : '',
+                                                    selected
+                                                        ? 'font-bold '
+                                                        : '',
+                                                ]"
+                                            >
+                                                {{ $t(k.toUpperCase()) }}
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </Listbox>
+                            </div>
+                        </div>
+
+                        <!-- filter tag -->
+                        <div class="w-full py-1">
+                            <div class="flex flex-wrap">
+                                <div
+                                    v-for="(tag, index) in tags"
+                                    :key="tag"
+                                    class=""
+                                >
+                                    <div
+                                        v-if="tag.type === 'rune'"
+                                        class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                    >
+                                        <img
+                                            :src="`${base}/assets/images/${tag.name.toUpperCase()}.webp`"
+                                            :alt="tag.type"
+                                            class="w-5 h-5 mr-2 scale-125"
+                                        />
+                                        <span>{{
+                                            $t(tag.name.toUpperCase())
+                                        }}</span>
+                                        <span
+                                            class="ml-2 cursor-pointer text-black"
+                                            @click="removeTag(index)"
+                                        >
+                                            &times;
+                                        </span>
+                                    </div>
+                                    <div
+                                        v-else-if="tag.type === 'type'"
+                                        class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                    >
+                                        <img
+                                            :src="`${base}/assets/images/${tag.name.toLowerCase()}.svg`"
+                                            :alt="tag.type"
+                                            class="w-5 h-5 mr-2"
+                                        />
+                                        <span>{{
+                                            $t(tag.name.toUpperCase())
+                                        }}</span>
+                                        <span
+                                            class="ml-2 cursor-pointer text-black"
+                                            @click="removeTag(index)"
+                                        >
+                                            &times;
+                                        </span>
+                                    </div>
+                                    <div
+                                        v-else-if="
+                                            [
+                                                'energy',
+                                                'power',
+                                                'might',
+                                            ].includes(tag.type)
+                                        "
+                                        class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                    >
+                                        <img
+                                            v-if="tag.type === 'energy'"
+                                            :src="`${base}/assets/images/energy-${tag.name}.svg`"
+                                            :alt="tag.type"
+                                            class="w-5 h-5 mr-2"
+                                        />
+                                        <img
+                                            v-else-if="tag.type === 'might'"
+                                            :src="`${base}/assets/images/might.svg`"
+                                            :alt="tag.type"
+                                            class="w-5 h-5 mr-2"
+                                        />
+                                        <span v-else
+                                            >{{ $t(tag.type.toUpperCase()) }}:
+                                        </span>
+                                        <span> {{ tag.name }}</span>
+                                        <span
+                                            class="ml-2 cursor-pointer text-black"
+                                            @click="removeTag(index)"
+                                        >
+                                            &times;
+                                        </span>
+                                    </div>
+                                    <div
+                                        v-else-if="tag.type === 'keyword'"
+                                        class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center text-white"
+                                        :style="`background: ${
+                                            KeywordColors[tag.name]
+                                        }`"
+                                    >
+                                        <span class="mr-2">
+                                            {{ $t(tag.name.toUpperCase()) }}
+                                        </span>
+                                        <span
+                                            class="cursor-pointer text-white"
+                                            @click="removeTag(index)"
+                                        >
+                                            &times;
+                                        </span>
+                                    </div>
+                                    <div
+                                        v-else-if="tag.type === 'series'"
+                                        class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
+                                    >
+                                        <span class="mr-2">
+                                            {{ $t(tag.name.toUpperCase()) }}
+                                        </span>
+                                        <span
+                                            class="cursor-pointer"
+                                            @click="removeTag(index)"
+                                        >
+                                            &times;
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ChevronsRight
+                    v-if="!showCardList"
+                    class="mx-1"
+                    :stroke-width="1.5"
+                    @click="toogleCartList"
+                />
+            </h2>
+
+            <div
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 ml-4"
+                :class="[showCardList ? '' : 'hidden']"
+            >
+                <div
+                    v-for="card in filteredCards"
+                    :key="card.cardId"
+                    class="bg-white shadow-md rounded py-2 px-0.5 cursor-pointer hover:scale-105 active:scale-90 hover:transition-all"
+                    @mouseenter="showTooltip(card)"
+                    @mouseleave="hideTooltip"
+                    @click="addToDeck(card)"
+                >
+                    <img
+                        :src="card.imgSrc"
+                        :alt="card.name"
+                        class="w-full h-24 object-cover rounded object-left-top"
+                    />
+                    <p class="text-center mt-1 text-sm">
+                        {{ card.name }}
+                    </p>
+                </div>
+                <div
+                    ref="bottomElement"
+                    class="w-full h-10 col-span-full flex justify-center items-center"
+                >
+                    <span
+                        v-if="
+                            currentPage === totalPages ||
+                            filteredCards.length === 0
+                        "
+                        >{{ $t("END") }}</span
+                    >
+                </div>
+            </div>
+        </aside>
+
+        <!-- 卡组构建区 -->
+        <section
+            class="px-4 border-l-2"
+            :class="[!showCardList ? 'w-full' : 'w-1/2 md:w-2/5']"
+        >
+            <div
+                class="text-lg font-semibold mb-2 flex items-center justify-between gap-2"
+            >
+                <h2>卡组</h2>
+                <div
+                    class="flex justify-center items-center overflow-hidden rounded-md border-1 border-gray-700"
+                >
+                    <div
+                        @click="showCardImg = false"
+                        class="p-1"
+                        :class="[!showCardImg ? 'bg-teal-700' : 'opacity-50']"
+                    >
+                        <List
+                            :class="[!showCardImg ? 'text-white' : '']"
+                            :size="16"
+                        />
+                    </div>
+                    <div
+                        @click="showCardImg = true"
+                        class="p-1"
+                        :class="[showCardImg ? 'bg-teal-700' : 'opacity-50']"
+                    >
+                        <LayoutGrid
+                            :class="[showCardImg ? 'text-white' : 'text-black']"
+                            :size="16"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div id="deck" class="pb-3 overflow-y-scroll customScroll">
+                <div
+                    class="md:flex gap-2"
+                    :class="[
+                        showCardImg ? 'w-fit' : '',
+                        showCardList ? '' : '',
+                    ]"
+                >
+                    <!-- 传奇 -->
+                    <fieldset
+                        class="border-1 px-2 py-1.5 rounded-md"
+                        :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
+                    >
+                        <legend class="text-md font-semibold">
+                            {{ $t("LEGEND") }}
+                        </legend>
+
+                        <div
+                            v-if="selectedDeck.legend"
+                            @mouseenter="showTooltip(selectedDeck.legend)"
+                            @mouseleave="hideTooltip"
+                        >
+                            <div v-if="!showCardImg">
+                                <p class="text-2xl font-bold">
+                                    {{ selectedDeck.legend.name }}
+                                </p>
+                                <p class="text-md font-medium">
+                                    {{ $t("LEGEND_CHAMPION") }}:{{ " " }}
+                                    {{ selectedDeck.legend.champion }}
                                 </p>
                             </div>
-                        </fieldset>
-                    </div>
-
-                    <fieldset class="border-1 px-2 py-1.5 rounded-md">
-                        <legend class="text-md font-semibold">
-                            {{ $t("UNIT") }}（{{ totalCard }}/40）
-                        </legend>
-                        <div
-                            v-if="selectedDeck.units.length > 0"
-                            class="grid grid-cols-1"
-                            :class="[
-                                !showCardList
-                                    ? 'sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8'
-                                    : 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3',
-                            ]"
-                        >
-                            <div
-                                v-for="(card, index) in selectedDeck.units"
-                                :key="card.cardId"
-                                class="gap-2 p-2 cursor-pointer mx-1"
-                                @mouseenter="showTooltip(card)"
-                                @mouseleave="hideTooltip"
-                                @click="removeFromDeck(index, 'card')"
-                            >
-                                <div
-                                    v-if="!showCardImg"
-                                    class="flex items-end justify-between border-b"
-                                >
-                                    <div>
-                                        <small>{{ card.cardId }}</small>
-                                        <p class="text-sm">{{ card.name }}</p>
-                                    </div>
-
-                                    <div>x {{ card.count }}</div>
-                                </div>
-
-                                <div v-else>
-                                    <img
-                                        :src="card.imgSrc"
-                                        :alt="card.name"
-                                        class="max-w-[150px] mx-auto"
-                                    />
-                                    <div class="font-bold text-center">
-                                        {{ card.count }}
-                                    </div>
-                                </div>
+                            <div class="text-center" v-if="showCardImg">
+                                <img
+                                    :src="selectedDeck.legend.imgSrc"
+                                    :alt="selectedDeck.legend.name"
+                                    class="max-w-[150px]"
+                                />
+                                <p class="font-bold">
+                                    {{ selectedDeck.legend.name }}
+                                </p>
                             </div>
                         </div>
                         <div
                             v-else
-                            class="h-full flex justify-center items-center my-20"
+                            class="h-full flex justify-center items-center"
                         >
-                            <p class="opacity-50">{{ $t("PICK_UNITS") }}</p>
+                            <p class="opacity-50">
+                                {{ $t("PICK A LEGEND") }}
+                            </p>
                         </div>
                     </fieldset>
 
-                    <!-- battlefield -->
-                    <fieldset class="border-1 px-2 py-1.5 rounded-md">
+                    <!-- runes -->
+                    <fieldset
+                        class="border-1 px-2 py-1.5 rounded-md"
+                        :class="[!showCardImg ? 'h-28' : 'h-full min-h-28']"
+                    >
                         <legend class="text-md font-semibold">
-                            {{ $t("BATTLEFIELD") }}（{{
-                                selectedDeck.battlefield.length
-                            }}/3）
+                            {{ $t("RUNE") }}（{{ totalCount }}/12）
                         </legend>
+                        <div v-if="selectedDeck.legend" class="flex gap-4">
+                            <div
+                                v-for="(r, index) in selectedDeck.runes"
+                                :key="r"
+                                class="px-2"
+                            >
+                                <div class="h-full items-center">
+                                    <img
+                                        v-if="!showCardImg"
+                                        class="rounded-4xl shadow-lg mx-auto"
+                                        :src="getRuneImageUrl(r.rune)"
+                                        alt="CALM"
+                                        title="冷静"
+                                        width="50px"
+                                    />
+
+                                    <img
+                                        v-else
+                                        @mouseenter="showTooltip(r)"
+                                        @mouseleave="hideTooltip"
+                                        :src="r.imgSrc"
+                                        :alt="r.rune"
+                                        class="max-w-[150px]"
+                                    />
+                                    <div
+                                        class="flex items-center justify-center gap-1.5"
+                                    >
+                                        <Minus
+                                            class="rounded-xl border-1"
+                                            :size="16"
+                                            @click="decreaseCount(index)"
+                                        />
+                                        <p class="font-bold">
+                                            {{ r.count }}
+                                        </p>
+                                        <Plus
+                                            class="rounded-xl border-1"
+                                            :size="16"
+                                            @click="increaseCount(index)"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div
-                            v-if="selectedDeck.battlefield.length > 0"
-                            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+                            v-else
+                            class="h-full flex justify-center items-center"
+                        >
+                            <p class="opacity-50">
+                                {{ $t("PICK A LEGEND") }}
+                            </p>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- units -->
+                <fieldset class="border-1 px-2 py-1.5 rounded-md">
+                    <legend class="text-md font-semibold">
+                        {{ $t("UNIT") }}（{{ totalCard }}/40）
+                    </legend>
+
+                    <div
+                        class="shadow-lg relative px-2 py-1 flex justify-between rounded overflow-hidden"
+                        v-for="(card, index) in selectedDeck.units"
+                        :key="index"
+                    >
+                        <!-- 图片层 -->
+                        <div
+                            class="absolute top-0 right-0 overflow-hidden bottom-0 left-0 z-0"
+                        >
+                            <img
+                                :src="card.imgSrc"
+                                :alt="card.name"
+                                class="object-center bg-center"
+                            />
+                        </div>
+
+                        <!-- 文字内容层 -->
+                        <span class="relative z-10">{{ card.name }}</span>
+                        <span class="relative z-10">x{{ card.count }}</span>
+                    </div>
+
+                    <div
+                        v-if="selectedDeck.units.length > 0"
+                        class="grid grid-cols-1"
+                        :class="[
+                            !showCardList
+                                ? 'sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8'
+                                : 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3',
+                        ]"
+                    >
+                        <div
+                            v-for="(card, index) in selectedDeck.units"
+                            :key="card.cardId"
+                            class="gap-2 p-2 cursor-pointer mx-1"
+                            @mouseenter="showTooltip(card)"
+                            @mouseleave="hideTooltip"
+                            @click="removeFromDeck(index, 'card')"
                         >
                             <div
-                                v-for="(
-                                    card, index
-                                ) in selectedDeck.battlefield"
-                                :key="card.cardId"
-                                :class="[!showCardImg ? ' border-b ' : '']"
-                                class="gap-2 p-2 cursor-pointer mx-1"
-                                @mouseenter="showTooltip(card)"
-                                @mouseleave="hideTooltip"
-                                @click="removeFromDeck(index, 'bf')"
+                                v-if="!showCardImg"
+                                class="flex items-end justify-between border-b"
                             >
-                                <div v-if="!showCardImg">
+                                <div>
                                     <small>{{ card.cardId }}</small>
                                     <p class="text-sm">{{ card.name }}</p>
                                 </div>
 
+                                <div>x {{ card.count }}</div>
+                            </div>
+
+                            <div v-else>
                                 <img
-                                    v-else
                                     :src="card.imgSrc"
                                     :alt="card.name"
-                                    class="max-h-[200px] mx-auto"
+                                    class="max-w-[150px] mx-auto"
                                 />
+                                <div class="font-bold text-center">
+                                    {{ card.count }}
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div
+                        v-else
+                        class="h-full flex justify-center items-center my-20"
+                    >
+                        <p class="opacity-50">{{ $t("PICK_UNITS") }}</p>
+                    </div>
+                </fieldset>
+
+                <!-- battlefield -->
+                <fieldset class="border-1 px-2 py-1.5 rounded-md">
+                    <legend class="text-md font-semibold">
+                        {{ $t("BATTLEFIELD") }}（{{
+                            selectedDeck.battlefield.length
+                        }}/3）
+                    </legend>
+                    <div
+                        v-if="selectedDeck.battlefield.length > 0"
+                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+                    >
                         <div
-                            v-else
-                            class="h-full flex justify-center items-center my-20"
+                            v-for="(card, index) in selectedDeck.battlefield"
+                            :key="card.cardId"
+                            :class="[!showCardImg ? ' border-b ' : '']"
+                            class="gap-2 p-2 cursor-pointer mx-1"
+                            @mouseenter="showTooltip(card)"
+                            @mouseleave="hideTooltip"
+                            @click="removeFromDeck(index, 'bf')"
                         >
-                            <p class="opacity-50">{{ $t("PICK_BF") }}</p>
+                            <div v-if="!showCardImg">
+                                <small>{{ card.cardId }}</small>
+                                <p class="text-sm">{{ card.name }}</p>
+                            </div>
+
+                            <img
+                                v-else
+                                :src="card.imgSrc"
+                                :alt="card.name"
+                                class="max-h-[200px] mx-auto"
+                            />
                         </div>
-                    </fieldset>
-                </div>
-            </section>
-        </div>
-
-        <!-- Tooltip -->
-        <div
-            ref="tooltip"
-            v-if="tooltipCard"
-            class="fixed p-2 bg-gray-200 text-black text-sm rounded shadow-lg max-w-52 min-w-40"
-            :style="{
-                top: tooltipPosition.y + 'px',
-                left: tooltipPosition.x + 'px',
-            }"
-        >
-            <img
-                v-if="!showCardImg"
-                :src="tooltipCard.imgSrc"
-                alt=""
-                class="mx-auto max-w-[100px] rounded-md"
-            />
-            <p class="font-bold text-center my-0.5">
-                {{ tooltipCard.name }}
-            </p>
-            <div class="flex w-full gap-2 justify-center">
-                <!-- might -->
-                <div v-if="tooltipCard?.might" class="flex items-center">
-                    <img
-                        :src="base + 'assets/images/might.svg'"
-                        width="12"
-                        alt=""
-                    />
-                    <span>:{{ tooltipCard.might }}</span>
-                </div>
-
-                <!-- energy -->
-                <div v-if="tooltipCard?.cost?.energy" class="flex items-center">
-                    <img
-                        :src="
-                            base +
-                            'assets/images/energy-' +
-                            tooltipCard.cost.energy +
-                            '.svg'
-                        "
-                        width="12"
-                        alt=""
-                    />
-                    <span>:{{ tooltipCard.cost.energy }}</span>
-                </div>
-
-                <!-- power -->
-                <div v-if="tooltipCard?.cost?.power" class="flex items-center">
-                    <img
-                        :src="base + 'assets/images/rune.svg'"
-                        width="12"
-                        alt=""
-                    />
-                    <span>:{{ tooltipCard.cost.power.count }}</span>
-                </div>
+                    </div>
+                    <div
+                        v-else
+                        class="h-full flex justify-center items-center my-20"
+                    >
+                        <p class="opacity-50">{{ $t("PICK_BF") }}</p>
+                    </div>
+                </fieldset>
             </div>
-            <div
-                class="whitespace-pre-wrap mb-1 py-2 px-1 border-y-2"
-                v-html="replaceKeywords(tooltipCard?.description)"
-            />
-        </div>
+        </section>
+    </div>
 
-        <footer class="p-4 bg-gray-200 flex justify-between">
+    <!-- Tooltip -->
+    <div
+        ref="tooltip"
+        v-if="tooltipCard"
+        class="fixed p-2 bg-gray-200 text-black text-sm rounded shadow-lg max-w-52 min-w-40"
+        :style="{
+            top: tooltipPosition.y + 'px',
+            left: tooltipPosition.x + 'px',
+        }"
+    >
+        <img
+            v-if="!showCardImg"
+            :src="tooltipCard.imgSrc"
+            alt=""
+            class="mx-auto max-w-[100px] rounded-md"
+        />
+        <p class="font-bold text-center my-0.5">
+            {{ tooltipCard.name }}
+        </p>
+        <div class="flex w-full gap-2 justify-center">
+            <!-- might -->
+            <div v-if="tooltipCard?.might" class="flex items-center">
+                <img
+                    :src="base + 'assets/images/might.svg'"
+                    width="12"
+                    alt=""
+                />
+                <span>:{{ tooltipCard.might }}</span>
+            </div>
+
+            <!-- energy -->
+            <div v-if="tooltipCard?.cost?.energy" class="flex items-center">
+                <img
+                    :src="
+                        base +
+                        'assets/images/energy-' +
+                        tooltipCard.cost.energy +
+                        '.svg'
+                    "
+                    width="12"
+                    alt=""
+                />
+                <span>:{{ tooltipCard.cost.energy }}</span>
+            </div>
+
+            <!-- power -->
+            <div v-if="tooltipCard?.cost?.power" class="flex items-center">
+                <img :src="base + 'assets/images/rune.svg'" width="12" alt="" />
+                <span>:{{ tooltipCard.cost.power.count }}</span>
+            </div>
+        </div>
+        <div
+            class="whitespace-pre-wrap mb-1 py-2 px-1 border-y-2"
+            v-html="replaceKeywords(tooltipCard?.description)"
+        />
+    </div>
+
+    <!-- <footer class="p-4 bg-gray-200 flex justify-between">
             <button
                 class="text-sm bg-red-500 px-3 py-1 rounded"
                 @click="clearDeck"
@@ -555,13 +968,19 @@
             >
                 {{ $t("COPY") }} <Copy :size="15" />
             </button>
-        </footer>
-    </div>
-    <DraggableDiv v-if="showStatus" :initialPosition="{ x: 200, y: 150 }" :data="{...deckDescription, legendChampionPresent: selectedDeck.legend_champion_present}"/>
+        </footer> -->
+    <DraggableDiv
+        v-if="showStatus"
+        :initialPosition="{ x: 200, y: 150 }"
+        :data="{
+            ...deckDescription,
+            legendChampionPresent: selectedDeck.legend_champion_present,
+        }"
+    />
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import replaceKeywords from "@/helpers/keyMap.js";
 import { ChevronsRight } from "lucide-vue-next";
 import { ChevronsLeft } from "lucide-vue-next";
@@ -577,8 +996,17 @@ import {
     CardTypes,
     KeywordList,
     KeywordColors,
+    Series,
 } from "/src/constant.js";
+import {
+    Listbox,
+    ListboxButton,
+    ListboxOptions,
+    ListboxOption,
+} from "@headlessui/vue";
 import { Copy } from "lucide-vue-next";
+import { Search } from "lucide-vue-next";
+import { Filter } from "lucide-vue-next";
 
 const base = import.meta.env.BASE_URL;
 const showCardList = ref(true);
@@ -588,17 +1016,92 @@ const runesImage = ref([]);
 const notifyRef = ref(null);
 const deckBuilder = ref(null);
 const tooltip = ref(null);
-const showStatus = ref(false);
 
-const filters = ref({
-    search: "",
-    keyword: "all",
-    type: "all",
-    rune: "all",
-    energy: "all",
-    power: "all",
-    might: "all",
+// filter
+const showStatus = ref(false);
+const searchKey = ref("");
+const currentPage = ref(1);
+const cardsPerPage = ref(20);
+const observer = ref(null);
+const bottomElement = ref(null);
+const totalPages = ref(0);
+const showFilter = ref(false);
+const energyOptions = ref([
+    "ALL",
+    ...Array.from({ length: 12 }, (_, i) => i + 1),
+]);
+const powerOptions = ref(["ALL", 1, 2, 3]);
+const mightOptions = ref([
+    "ALL",
+    ...Array.from({ length: 12 }, (_, i) => i + 1),
+]);
+const selectedKeyword = ref("ALL");
+const selectedType = ref("ALL");
+const selectedRune = ref("ALL");
+const selectedEnergy = ref("ALL");
+const selectedPower = ref("ALL");
+const selectedMight = ref("ALL");
+const selectedSeries = ref("ALL");
+
+const tags = computed(() => {
+    const t = [];
+    if (selectedType.value !== "ALL") {
+        t.push({ name: selectedType.value, type: "type" });
+    }
+    if (selectedRune.value !== "ALL") {
+        t.push({ name: selectedRune.value, type: "rune" });
+    }
+    if (selectedEnergy.value !== "ALL") {
+        t.push({ name: selectedEnergy.value, type: "energy" });
+    }
+    if (selectedPower.value !== "ALL") {
+        t.push({ name: selectedPower.value, type: "power" });
+    }
+    if (selectedMight.value !== "ALL") {
+        t.push({ name: selectedMight.value, type: "might" });
+    }
+    if (selectedKeyword.value !== "ALL") {
+        t.push({ name: selectedKeyword.value, type: "keyword" });
+    }
+    if (selectedSeries.value !== "ALL") {
+        t.push({ name: selectedSeries.value, type: "series" });
+    }
+    return t;
 });
+// remove tag
+const removeTag = (index) => {
+    const tag = tags.value[index];
+    switch (tag.type) {
+        case "type":
+            selectedType.value = "ALL";
+            break;
+        case "rune":
+            selectedRune.value = "ALL";
+            break;
+        case "energy":
+            selectedEnergy.value = "ALL";
+            break;
+        case "power":
+            selectedPower.value = "ALL";
+            break;
+        case "might":
+            selectedMight.value = "ALL";
+            break;
+        case "keyword":
+            selectedKeyword.value = "ALL";
+            break;
+        case "series":
+            selectedSeries.value = "ALL";
+            break;
+    }
+};
+
+// toogle filter
+const toogleFilter = () => {
+    showFilter.value = !showFilter.value;
+};
+
+//-----------------------end filter-------------------------
 
 onMounted(async () => {
     const response = await fetch(base + "/assets/data/cards-cn.json");
@@ -611,33 +1114,63 @@ onMounted(async () => {
     availableCards.value = data.filter(
         (c) => !["rune"].includes(c.type.toLowerCase())
     );
+    setupObserver();
 });
+
+onUnmounted(() => {
+    if (observer.value) {
+        observer.value.disconnect();
+    }
+});
+
+const setupObserver = () => {
+    observer.value = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && currentPage.value < totalPages.value) {
+            currentPage.value++;
+        }
+    });
+
+    if (bottomElement.value) {
+        observer.value.observe(bottomElement.value);
+    }
+};
 
 const availableCards = ref([]);
 
 const filteredCards = computed(() => {
-    return availableCards.value.filter((card) => {
-        return (
-            (filters.value.search === "" ||
-                card.cardId.includes(filters.value.search) ||
-                card.name.includes(filters.value.search)) &&
-            (filters.value.keyword === "all" ||
-                card.keywords
-                    .map((k) => k.name)
-                    .includes(filters.value.keyword)) &&
-            (filters.value.type === "all" ||
-                card.type === filters.value.type) &&
-            (filters.value.rune === "all" ||
-                (card?.runeColor &&
-                    card.runeColor.includes(filters.value.rune))) &&
-            (filters.value.energy === "all" ||
-                card?.cost?.energy === parseInt(filters.value.energy)) &&
-            (filters.value.power === "all" ||
-                card?.cost?.power.count === parseInt(filters.value.power)) &&
-            (filters.value.might === "all" ||
-                card?.might === parseInt(filters.value.might))
-        );
-    });
+    try {
+        const filtered = availableCards.value.filter((card) => {
+            return (
+                (searchKey.value === "" ||
+                    card.cardId.includes(searchKey.value) ||
+                    card.name.includes(searchKey.value)) &&
+                (selectedKeyword.value === "ALL" ||
+                    card.keywords
+                        .map((k) => k.name)
+                        .includes(selectedKeyword.value)) &&
+                (selectedType.value === "ALL" ||
+                    card.type === selectedType.value) &&
+                (selectedRune.value === "ALL" ||
+                    (card?.runeColor &&
+                        card.runeColor.includes(selectedRune.value))) &&
+                (selectedEnergy.value === "ALL" ||
+                    card?.cost?.energy === parseInt(selectedEnergy.value)) &&
+                (selectedPower.value === "ALL" ||
+                    card?.cost?.power.count ===
+                        parseInt(selectedPower.value)) &&
+                (selectedMight.value === "ALL" ||
+                    card?.might === parseInt(selectedMight.value)) &&
+                (selectedSeries.value === "ALL" ||
+                    card?.cardId.startsWith(selectedSeries.value))
+            );
+        });
+        totalPages.value = Math.ceil(filtered.length / cardsPerPage.value);
+        const startIndex = 0;
+        const endIndex = currentPage.value * cardsPerPage.value;
+        return filtered.slice(startIndex, endIndex);
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 const selectedDeck = ref({
@@ -660,7 +1193,7 @@ watch(
     selectedDeck,
     (deck) => {
         if (deck.legend) {
-            // check legend's champion present in deck or not  
+            // check legend's champion present in deck or not
             deck.legend_champion_present = deck.units.some(
                 (unit) => unit.name === deck.legend.champion
             );
@@ -721,8 +1254,6 @@ watch(
                 runedistributed: {},
             };
         }
-
-        console.log(deckDescription.value);
     },
     { deep: true }
 );
@@ -754,10 +1285,19 @@ const updateTooltipPosition = (event) => {
         tooltip.value;
     const { offsetWidth: containerWidth, offsetHeight: containerHeight } =
         deckBuilder.value;
-    tooltipPosition.value = {
-        x: x + tooltipWidth > containerWidth ? x - tooltipWidth - 5 : x + 10,
-        y: y + tooltipHeight > containerHeight ? y - tooltipHeight - 5 : y + 10,
-    };
+
+    requestAnimationFrame(() => {
+        tooltipPosition.value = {
+            x:
+                x + tooltipWidth > containerWidth
+                    ? x - tooltipWidth - 5
+                    : x + 10,
+            y:
+                y + tooltipHeight > containerHeight
+                    ? y - tooltipHeight - 5
+                    : y + 10,
+        };
+    });
 };
 
 const addToDeck = (card) => {
@@ -894,15 +1434,14 @@ const toogleShow = () => {
 };
 
 const resetFilters = () => {
-    filters.value = {
-        search: "",
-        keyword: "all",
-        type: "all",
-        rune: "all",
-        energy: "all",
-        power: "all",
-        might: "all",
-    };
+    searchKey.value = "";
+    selectedType.value = "ALL";
+    selectedRune.value = "ALL";
+    selectedEnergy.value = "ALL";
+    selectedPower.value = "ALL";
+    selectedMight.value = "ALL";
+    selectedKeyword.value = "ALL";
+    selectedSeries.value = "ALL";
 };
 
 const copy = () => {

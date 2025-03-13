@@ -21,7 +21,7 @@ import { ref, defineProps } from "vue";
 const props = defineProps({
     initialPosition: {
         type: Object,
-        default: () => ({ x: 100, y: 100 }), // 默认初始位置
+        default: () => ({ x: 100, y: 100 }), 
     },
     data: {
         type: Object,

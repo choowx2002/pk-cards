@@ -6,6 +6,7 @@
     "KEYWORD": "词条",
     "MIGHT": "战力",
     "TYPE": "类型",
+    "SERIES": "系列",
 
     "UNIT": "单位",
     "SPELL": "法术",
@@ -57,12 +58,12 @@
     "NEXT": "下一页",
     "END": "到底了，没有更多了 ~(=。= ~)",
 
-    "FURY": "狂怒",
-    "MENTAL": "精神",
+    "FURY": "炽烈",
+    "MENTAL": "灵光",
     "CHAOTIC": "混沌",
-    "PHYSICAL": "物理",
-    "CALM": "冷静",
-    "ORDER": "秩序",
+    "PHYSICAL": "催破",
+    "CALM": "翠意",
+    "ORDER": "序理",
 
     "ALL": "全部",
     "LIST": "列表",

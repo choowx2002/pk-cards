@@ -57,3 +57,5 @@ export const KeywordColors = {
   Focused: "#426db1",
   Epic: "#8d7d33"
 };
+
+export const Series = ['ARC', 'FND'];
