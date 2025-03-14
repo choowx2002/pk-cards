@@ -12,7 +12,9 @@
             class="w-1/2 md:w-3/5 bg-gray-100 customScroll overflow-scroll"
             :class="[showCardList ? 'max-w-[5000px]' : 'max-w-fit']"
         >
-            <h2 class="mb-2 flex justify-between items-center w-full sm:relative z-50">
+            <h2
+                class="mb-2 flex justify-between items-center w-full sm:relative z-50"
+            >
                 <div
                     class="flex gap-2 pl-4 items-center w-full"
                     v-if="showCardList"
@@ -157,7 +159,7 @@
                                             class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
                                         >
                                             <span class="mr-2">
-                                                {{ $t(tag.name.toUpperCase()) }}
+                                                {{ tag.name.toUpperCase() }}
                                             </span>
                                             <span
                                                 class="cursor-pointer"
@@ -553,7 +555,7 @@
                                         class="px-2 py-1 bg-gray-200 rounded-full text-sm mr-2 mb-2 flex items-center"
                                     >
                                         <span class="mr-2">
-                                            {{ $t(tag.name.toUpperCase()) }}
+                                            {{ tag.name.toUpperCase() }}
                                         </span>
                                         <span
                                             class="cursor-pointer"
@@ -589,8 +591,15 @@
                     @mouseleave="hideTooltip"
                     @click="addToDeck(card)"
                 >
-                    <div class="absolute right-0 top-0 p-0.5" style="background-color: rgba(0, 0, 0, 0.5);">
-                        <ExternalLink class="text-white" :size="16" @click="routeToCardDetails(card.cardId)"/>
+                    <div
+                        class="absolute right-0 top-0 p-0.5"
+                        style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                        <ExternalLink
+                            class="text-white"
+                            :size="16"
+                            @click="routeToCardDetails(card.cardId)"
+                        />
                     </div>
                     <img
                         :src="card.imgSrc"
@@ -634,10 +643,13 @@
                     </button>
                 </div>
 
-                <div class="mr-auto active:scale-75" title="点击查看构筑信息" @click="showStatus = !showStatus">
-                    <Info class="text-teal-700" :size="16"/>
+                <div
+                    class="mr-auto active:scale-75"
+                    title="点击查看构筑信息"
+                    @click="showStatus = !showStatus"
+                >
+                    <Info class="text-teal-700" :size="16" />
                 </div>
-                
 
                 <div
                     class="flex justify-center items-center overflow-hidden rounded-md border-1 border-gray-700"
@@ -663,13 +675,27 @@
                         />
                     </div>
                 </div>
-                <div class="w-full items-center hidden sm:flex">
+                <div class="w-full items-center flex gap-1.5">
                     <button
                         class="text-xs hidden sm:flex p-1 rounded items-center gap-0.5 bg-gray-200"
                         @click="copy"
                     >
                         {{ $t("COPY") }}{{ $t("TEXT") }} <Copy :size="12" />
                     </button>
+                    <span
+                        class="flex text-xs items-center gap-0.5 p-1"
+                        :class="[
+                            !selectedDeck.legend_champion_present
+                                ? 'bg-red-700 text-white'
+                                : 'bg-green-500',
+                        ]"
+                        >专属英雄
+                        <CheckCircle2
+                            v-if="selectedDeck.legend_champion_present"
+                            :size="16"
+                        />
+                        <XCircle v-else :size="16" />
+                    </span>
                 </div>
             </div>
 
@@ -834,7 +860,9 @@
                             @mouseleave="hideTooltip"
                             @click="removeFromDeck(index, 'card')"
                         >
-                            <div class="rounded-md px-1 shadow-md bg-white">
+                            <div
+                                class="rounded-md shadow-md overflow-hidden border"
+                            >
                                 <div
                                     class="max-w-[150px] w-full mx-auto my-1.5 rounded-md overflow-hidden"
                                 >
@@ -846,14 +874,20 @@
                                 </div>
 
                                 <div
-                                    class="w-full flex justify-between items-center font-semibold"
+                                    class="w-full flex justify-between items-center font-semibold px-1"
                                 >
                                     <span class="text-sm truncate w-[80%]">{{
                                         card.name
                                     }}</span>
                                     <span>x{{ card.count }}</span>
                                 </div>
-                                <p class="text-[10px]">
+                                <p
+                                    class="text-[10px] px-1 font-semibold text-white"
+                                    :style="{
+                                        background:
+                                            runeColorsCss[card.runeColor[0]],
+                                    }"
+                                >
                                     {{ card.cardId }}
                                 </p>
                             </div>
@@ -1027,6 +1061,8 @@ import { Filter } from "lucide-vue-next";
 import { ExternalLink } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 import { Info } from "lucide-vue-next";
+import { CheckCircle2 } from "lucide-vue-next";
+import { XCircle } from "lucide-vue-next";
 
 const router = useRouter();
 const base = import.meta.env.BASE_URL;
@@ -1047,15 +1083,9 @@ const observer = ref(null);
 const bottomElement = ref(null);
 const totalPages = ref(0);
 const showFilter = ref(false);
-const energyOptions = ref([
-    "ALL",
-    ...Array.from({ length: 13 }, (_, i) => i),
-]);
-const powerOptions = ref(["ALL",0 , 1, 2, 3]);
-const mightOptions = ref([
-    "ALL",
-    ...Array.from({ length: 13 }, (_, i) => i),
-]);
+const energyOptions = ref(["ALL", ...Array.from({ length: 13 }, (_, i) => i)]);
+const powerOptions = ref(["ALL", 0, 1, 2, 3]);
+const mightOptions = ref(["ALL", ...Array.from({ length: 13 }, (_, i) => i)]);
 const selectedKeyword = ref("ALL");
 const selectedType = ref("ALL");
 const selectedRune = ref("ALL");
@@ -1161,14 +1191,17 @@ const availableCards = ref([]);
 const filteredCards = computed(() => {
     try {
         const filtered = availableCards.value.filter((card) => {
+            const onlyAcceptEmptyKeys = selectedKeyword.value === "NoKeywords";
             return (
                 (searchKey.value === "" ||
                     card.cardId.includes(searchKey.value) ||
                     card.name.includes(searchKey.value)) &&
                 (selectedKeyword.value === "ALL" ||
-                    card.keywords
-                        .map((k) => k.name)
-                        .includes(selectedKeyword.value)) &&
+                    (onlyAcceptEmptyKeys && card.keywords.length === 0) ||
+                    (!onlyAcceptEmptyKeys &&
+                        card.keywords
+                            .map((k) => k.name)
+                            .includes(selectedKeyword.value))) &&
                 (selectedType.value === "ALL" ||
                     card.type === selectedType.value) &&
                 (selectedRune.value === "ALL" ||
@@ -1193,7 +1226,6 @@ const filteredCards = computed(() => {
         console.log(error);
     }
 });
-
 const selectedDeck = ref({
     legend: null,
     runes: [],
@@ -1233,14 +1265,19 @@ watch(
                         if (!desc.energydistributed[unit.cost.energy]) {
                             desc.energydistributed[unit.cost.energy] = {};
                         }
-                        desc.energydistributed[unit.cost.energy][unit.runeColor[0]] =
-                        (desc.energydistributed[unit.cost.energy][unit.runeColor[0]] || 0) + unit.count;
+                        desc.energydistributed[unit.cost.energy][
+                            unit.runeColor[0]
+                        ] =
+                            (desc.energydistributed[unit.cost.energy][
+                                unit.runeColor[0]
+                            ] || 0) + unit.count;
                     } else {
                         if (!desc.energydistributed[0]) {
                             desc.energydistributed[0] = {};
                         }
                         desc.energydistributed[0][unit.runeColor[0]] =
-                        (desc.energydistributed[0][unit.runeColor[0]] || 0) + unit.count;
+                            (desc.energydistributed[0][unit.runeColor[0]] ||
+                                0) + unit.count;
                     }
 
                     // Update power distribution
@@ -1248,14 +1285,19 @@ watch(
                         if (!desc.powerdistributed[unit.cost.power.count]) {
                             desc.powerdistributed[unit.cost.power.count] = {};
                         }
-                        desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] =
-                        (desc.powerdistributed[unit.cost.power.count][unit.runeColor[0]] || 0) + unit.count;
+                        desc.powerdistributed[unit.cost.power.count][
+                            unit.runeColor[0]
+                        ] =
+                            (desc.powerdistributed[unit.cost.power.count][
+                                unit.runeColor[0]
+                            ] || 0) + unit.count;
                     } else {
                         if (!desc.powerdistributed[0]) {
                             desc.powerdistributed[0] = {};
                         }
                         desc.powerdistributed[0][unit.runeColor[0]] =
-                        (desc.powerdistributed[0][unit.runeColor[0]] || 0) + unit.count;
+                            (desc.powerdistributed[0][unit.runeColor[0]] || 0) +
+                            unit.count;
                     }
 
                     // Update might distribution
@@ -1264,13 +1306,19 @@ watch(
                             desc.mightdistributed[unit.might] = {};
                         }
                         desc.mightdistributed[unit.might][unit.runeColor[0]] =
-                        (desc.mightdistributed[unit.might][unit.runeColor[0]] || 0) + unit.count;
-                    } else if (unit.type === 'Champion' || unit.type === 'Unit') {
+                            (desc.mightdistributed[unit.might][
+                                unit.runeColor[0]
+                            ] || 0) + unit.count;
+                    } else if (
+                        unit.type === "Champion" ||
+                        unit.type === "Unit"
+                    ) {
                         if (!desc.mightdistributed[0]) {
                             desc.mightdistributed[0] = {};
                         }
                         desc.mightdistributed[0][unit.runeColor[0]] =
-                        (desc.mightdistributed[0][unit.runeColor[0]] || 0) + unit.count;
+                            (desc.mightdistributed[0][unit.runeColor[0]] || 0) +
+                            unit.count;
                     }
 
                     // Update rune distribution
@@ -1281,7 +1329,7 @@ watch(
                         });
                     }
 
-                    desc.total+=unit.count;
+                    desc.total += unit.count;
                     return desc;
                 },
                 {
@@ -1300,7 +1348,7 @@ watch(
                 powerdistributed: {},
                 mightdistributed: {},
                 runedistributed: {},
-                total: 0
+                total: 0,
             };
         }
     },
@@ -1325,7 +1373,7 @@ const showTooltip = (card) => {
     };
 
     if (isMobile()) return;
- 
+
     if (!canShowTooltips.value) {
         hideTooltip();
         return;
@@ -1545,8 +1593,31 @@ const copy = () => {
     notifyRef.value?.addNotification("卡组文本已复制。", "success");
 };
 const routeToCardDetails = (id) => {
-  const url = router.resolve({ path: "/card", query: { cardId: encodeURIComponent(id) } }).href;
-  window.open(url, "_blank");
+    const url = router.resolve({
+        path: "/card",
+        query: { cardId: encodeURIComponent(id) },
+    }).href;
+    window.open(url, "_blank");
+};
+
+// check
+const checkTotalUnits = () => {
+    return props.data.total === 40;
+};
+
+const checkTotalRunes = () => {
+    return props.data.totalRunes === 12;
+};
+
+const checkRuneColor = () => {
+    if (props.data.legendRunes.length === 0) return false;
+    const existRunes = Object.keys(props.data.runedistributed);
+    if (existRunes.length !== 2) return false;
+    for (let i = 0; i < existRunes.length; i++) {
+        const rune = existRunes[i];
+        if (!props.data.legendRunes.includes(rune)) return false;
+    }
+    return true;
 };
 </script>
 

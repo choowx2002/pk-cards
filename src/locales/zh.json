@@ -28,6 +28,8 @@
     "REACTION": "反应",
     "FOCUSED": "专注",
     "EPIC": "引导",
+    "NOKEYWORDS": "无词条",
+
     "BANDLE CITY": "班德尔城",
     "BILGEWATER": "比尔吉沃特",
     "DEMACIA": "德玛西亚",
@@ -75,5 +77,6 @@
     "COPY": "复制",
     "TEXT": "文本",
     "IMAGE": "图片",
-    "EXPORT": "导出"
+    "EXPORT": "导出",
+    "MAIN_DECK": "主卡牌"
 }

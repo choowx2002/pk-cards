@@ -40,7 +40,8 @@ export const KeywordList = [
   "Hidden",
   "Reaction",
   "Focused",
-  "Epic"
+  "Epic",
+  "NoKeywords"
 ];
 
 export const KeywordColors = {
@@ -55,7 +56,8 @@ export const KeywordColors = {
   Hidden: "#7962a9",
   Reaction:"#7962a9",
   Focused: "#426db1",
-  Epic: "#8d7d33"
+  Epic: "#8d7d33",
+  NoKeywords: "#505050"
 };
 
 export const Series = ['ARC', 'FND'];

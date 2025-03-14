@@ -199,10 +199,11 @@ const matchesTypes = (card) => {
 // Keyword filter
 const matchesKeys = (card) => {
     if (!selectedKeys.value.length) return true;
-    return withAnd.value
-        ? selectedKeys.value.every((k) =>
-              card.keywords.some((kw) => kw.name === k)
-          )
+    const onlyAcceptEmpty =
+        selectedKeys.value.includes("NoKeywords") &&
+        selectedKeys.value.length === 1;
+    return onlyAcceptEmpty
+        ? card.keywords?.length === 0
         : selectedKeys.value.some((k) =>
               card.keywords.some((kw) => kw.name === k)
           );
@@ -210,6 +211,7 @@ const matchesKeys = (card) => {
 
 // Might filter
 const matchesMight = (card) => {
+    if(!card?.might) return false;
     return (
         (might.value.min === "" || card.might >= might.value.min) &&
         (might.value.max === "" || card.might <= might.value.max)
@@ -218,6 +220,7 @@ const matchesMight = (card) => {
 
 // Energy filter
 const matchesEnergy = (card) => {
+    if(!card?.cost?.energy) return false;
     return (
         (energy.value.min === "" || card.cost.energy >= energy.value.min) &&
         (energy.value.max === "" || card.cost.energy <= energy.value.max)
@@ -296,9 +299,7 @@ const resetFilters = () => {
 <template>
     <div class="max-w-[1300px] mx-auto md:flex bg-gray-100 mt-2">
         <!-- 左侧筛选栏 -->
-        <aside
-            class="md:w-2/5 p-4 bg-white shadow-lg pt-3 md:h-fit"
-        >
+        <aside class="md:w-2/5 p-4 bg-white shadow-lg pt-3 md:h-fit">
             <!-- name and id -->
             <div class="w-full py-1 px-2">
                 <label class="text-lg font-semibold"
@@ -514,6 +515,9 @@ const resetFilters = () => {
                             <option value="none">
                                 {{ $t("KEYWORDS") }}
                             </option>
+                            <option value="NoKeywords">
+                                {{ $t("NOKEYWORDS") }}
+                            </option>
                             <option
                                 v-for="(key, index) in filteredKeywordList"
                                 :key="index"
@@ -537,7 +541,9 @@ const resetFilters = () => {
         </aside>
 
         <!-- 右侧卡牌列表 -->
-        <main class="justify-items-center md:w-2/3 overflow-y-scroll md:h-[calc(100vh-68px)] customScroll">
+        <main
+            class="justify-items-center md:w-2/3 overflow-y-scroll md:h-[calc(100vh-68px)] customScroll"
+        >
             <div
                 class="grid p-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
             >

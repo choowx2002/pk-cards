@@ -10,35 +10,7 @@
         >
             <GripHorizontalIcon />
             <X class="absolute right-0" @click="close" />
-            <div class="absolute left-0 flex items-center">
-                <span
-                    class="flex items-center gap-0.5 px-2"
-                    :class="[
-                        data.total !== 40
-                            ? 'bg-red-700 text-white'
-                            : 'bg-green-500',
-                    ]"
-                    >{{ data?.total ?? 0 }}/40</span
-                >
-                <span
-                    class="flex items-center gap-0.5 px-2"
-                    :class="[
-                        !data.legendChampionPresent
-                            ? 'bg-red-700 text-white'
-                            : 'bg-green-500',
-                    ]"
-                    >专属英雄
-                    <CheckCircle2
-                        v-if="data.legendChampionPresent"
-                        :size="16"
-                    />
-                    <XCircle v-else :size="16" />
-                </span>
-            </div>
         </div>
-        <!-- <div class="w-full h-full py-2">
-            {{ data }}
-        </div> -->
         <div class="flex gap-3">
             <div class="flex w-1/2 gap-2 px-1 mb-1 bg-gray-200 border rounded">
                 <div
@@ -93,6 +65,7 @@
                                         .energydistributed[energy]"
                                     :key="color"
                                     class="w-full outline-1"
+                                    :title="count"
                                     :style="{
                                         background: runeColorsCss[color],
                                         height: getHeight(
@@ -113,8 +86,9 @@
                     <div
                         v-for="power in [
                             ...Array(
-                                Object.keys(data.powerdistributed).at(-1) * 1 +
-                                    1 ?? 4
+                                (Number(
+                                    Object.keys(data.powerdistributed).at(-1)
+                                ) || 3) + 1
                             ).keys(),
                         ]"
                         :key="power"
@@ -133,6 +107,7 @@
                                     v-for="(count, color) in data
                                         .powerdistributed[power]"
                                     :key="color"
+                                    :title="count"
                                     class="w-full outline-1"
                                     :style="{
                                         background: runeColorsCss[color],
@@ -151,8 +126,9 @@
                     <div
                         v-for="might in [
                             ...Array(
-                                Object.keys(data.mightdistributed).at(-1) * 1 +
-                                    1 ?? 13
+                                (Number(
+                                    Object.keys(data.mightdistributed).at(-1)
+                                ) || 12) + 1
                             ).keys(),
                         ]"
                         :key="might"
@@ -172,6 +148,7 @@
                                         .mightdistributed[might]"
                                     :key="color"
                                     class="w-full outline-1"
+                                    :title="count"
                                     :style="{
                                         background: runeColorsCss[color],
                                         height: getHeight(count, maxMightCount),
